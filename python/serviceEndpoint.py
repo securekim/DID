@@ -48,7 +48,6 @@ def signTest():
     print("[테스트] 헬로월드 페이로드를 사인한 내용 : %s" % sig)
     print("[테스트] 헬로월드 페이로드를 사인해서 base58 : %s" % sig_base58)
 
-
 def response(resp, req):
     print("[도전받는자] 도전자 콜백 주소 %s 로 메시지 보냄 : %s" %(req["callback"], resp))
     r = requests.post(req["callback"], data=resp)
