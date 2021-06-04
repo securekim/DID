@@ -17,7 +17,7 @@ from urllib.parse import parse_qs
 #    sys.exit("[도전자] 도전받는자의 DID가 필요함)
 #challengee_did = str(sys.argv[1:][0])
 
-challengee_did = "did:mtm:Exgfmw6A5RLWWeJX2G4czjLJb8yDxM"
+challengee_did = "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd"
 
 pattern = re.compile("^did:mtm:[a-km-zA-HJ-NP-Z1-9]{30,30}$")
 if not pattern.match(challengee_did):
@@ -30,10 +30,27 @@ print("[도전자] 도전 받는자의 DID: %s" % challengee_did)
 def verify(challenge, sig, pubkey):
     verifying_key = ed25519.VerifyingKey(base64.b64encode(base58.b58decode(pubkey)),
                                          encoding="base64")
-    verifying_key.verify(json.loads(sig)["payload"],
-                         challenge.encode("ascii"),
-                         encoding="hex")
+    signedSignature_base58 = json.loads(sig)["payload"]
+    signedSignature = base58.b58decode(signedSignature_base58)
+    verifying_key.verify(signedSignature,
+                         challenge.encode("utf8"),
+                         encoding=None)
 
+def verifyTest():
+    verifying_key = ed25519.VerifyingKey(base64.b64encode(base58.b58decode("3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp")),
+                                         encoding="base64")
+    signedSignature_base58 = "3ZG8eitaCnjeGjVKQ7wGCABnogtqynAEESzsoGpktWtKPH8mw7mz5jSkN9AC99YACiwZd7vPubC9wQc4fdAWMsQu"
+    signedSignature = base58.b58decode(signedSignature_base58)
+    #int_values = [x for x in signedSignature]
+    #signedSignature_barray = bytearray.fromhex(signedSignature)
+    #signedSignature_barray = b'\x7f\xda\xc4\xf6\xacR\xe7\xbe\xbc6\xd9\xb6k\xf1M\x89\x80U\x89\x1e\xef\x8etp\x89\x1b\xea\xdbh\xcb\xbcm\xdd\x17t\xdbG\x91j\x93@;\x1eu.\x1acxDO[[\x012\xf8\xf0,\xc0!2\xb8`\xec\x02'
+    challenge = "Hello world"
+    message = challenge.encode("utf8")
+    verifying_key.verify(signedSignature,
+                         message,
+                         encoding=None)
+
+#verifyTest()
 
 # 콜백을 위한...
 class MyHttpHandler(BaseHTTPRequestHandler):
@@ -65,7 +82,6 @@ class MyHttpHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         return
 
-
 def callback_http(s):
     s.serve_forever()
 
@@ -81,20 +97,20 @@ try:
     #did_req = requests.get(universal_resolver_addr + challengee_did) 
     json_did_doc = {
         "@context": ["https://w3id.org/did/v1"],
-        "id": "did:mtm:Exgfmw6A5RLWWeJX2G4czjLJb8yDxM",
+        "id": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd",
         "service": [{
             "type": "DidAuthService",
-            "serviceEndpoint": "http://127.0.0.1:3333"
+            "serviceEndpoint": "http://127.0.0.1:3333/.identity/challenge"
         }],
         "authentication": [{
             "type": "Ed25519SignatureAuthentication2018",
-            "publicKey": "did:mtm:Exgfmw6A5RLWWeJX2G4czjLJb8yDxM#key-1"
+            "publicKey": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd#key-1"
         }],
         "publicKey": [{
-            "id": "did:mtm:Exgfmw6A5RLWWeJX2G4czjLJb8yDxM#key-1",
+            "id": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd#key-1",
             "type": "Ed25519VerificationKey2018",
-            "owner": "did:mtm:Exgfmw6A5RLWWeJX2G4czjLJb8yDxM",
-            "publicKeyBase58": "3ofzDb2umnCy96yLwTHawjTCfPZNxPiaX3g9SjN9CwGV"
+            "owner": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd",
+            "publicKeyBase58": "3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp"
         }]
     }
 
@@ -110,7 +126,7 @@ try:
     challenge_data = {"payload": challenge, "callback": "http://127.0.0.1:4444/callback?" + callback_id}
 
     session = requests.session()
-    challengee_addr = endpoint + "/.identity/challenge"
+    challengee_addr = endpoint
 
     print("")
     MyHttpHandler.pubkey = pubkey
