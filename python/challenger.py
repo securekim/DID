@@ -61,7 +61,7 @@ def verifyString(challenge, sigStr, pubkey):
 def verifyTest():
     verifying_key = ed25519.VerifyingKey(base64.b64encode(base58.b58decode("3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp")),
                                          encoding="base64")
-    signedSignature_base58 = "3ZG8eitaCnjeGjVKQ7wGCABnogtqynAEESzsoGpktWtKPH8mw7mz5jSkN9AC99YACiwZd7vPubC9wQc4fdAWMsQu"
+    signedSignature_base58 = "5Jw46W3gBpXNPEsGon6ETTLB9e7PaPRk3q6D5GBBJQp7fnhFoDVU8kmzgmY5AB7LwpbkVFm2KHmD7B2172PqL4jY"
     signedSignature = base58.b58decode(signedSignature_base58)
     #int_values = [x for x in signedSignature]
     #signedSignature_barray = bytearray.fromhex(signedSignature)
@@ -118,7 +118,7 @@ def challenging(did):
     #verificationMethod[0].publicKeyBase58
     #pubkey_global = [x for x in json_did_doc["publicKey"] if x["id"] == pubKey_identifier][0]["publicKeyBase58"]
     challenge_global = challenge
-    return pubkey_global, challenge_global
+    return challenge_global, pubkey_global
     print("[도전자] 랜덤 생성한 챌린지 컨텐츠 : %s" % challenge)
     try:
         # get DID document - Universal resolver를 사용하는 경우
@@ -185,6 +185,7 @@ def challenge():
         response.status = 400
         return "Malformed request"
     challenge_global, pubkey_global = challenging(get_body)
+    print(challenge_global)
     raise HTTPResponse(json.dumps({"payload": challenge_global}), status=202, headers={})
     return
     #challenging(get_body)
