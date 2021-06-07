@@ -18,7 +18,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs
 
 my_port = 3333
-
+#challenge_global = ""
+#pubkey_global = ""
 app = bottle.Bottle()
 app.install(canister.Canister())
 
@@ -34,7 +35,6 @@ if not pattern.match(challengee_did):
 universal_resolver_addr = "https://did-resolver.mitum.com/ddo/" # universal resolver를 사용하는 경우
 print("[도전자] 도전 받는자의 DID: %s" % challengee_did)
 
-
 # 사인 검증
 def verify(challenge, sig, pubkey):
     verifying_key = ed25519.VerifyingKey(base64.b64encode(base58.b58decode(pubkey)),
@@ -44,6 +44,19 @@ def verify(challenge, sig, pubkey):
     verifying_key.verify(signedSignature,
                          challenge.encode("utf8"),
                          encoding=None)
+
+def verifyString(challenge, sigStr, pubkey):
+    try:
+        verifying_key = ed25519.VerifyingKey(base64.b64encode(base58.b58decode(pubkey)),
+                                            encoding="base64")
+        signedSignature_base58 = sigStr
+        signedSignature = base58.b58decode(signedSignature_base58)
+        verifying_key.verify(signedSignature,
+                         challenge.encode("utf8"),
+                         encoding=None)
+        return True
+    except Exception:
+        return False
 
 def verifyTest():
     verifying_key = ed25519.VerifyingKey(base64.b64encode(base58.b58decode("3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp")),
@@ -99,7 +112,13 @@ def id_generator(size=32, chars=string.ascii_uppercase + string.digits):
 def challenging(did):
     challenge = id_generator()
     #challenge = did
-    return challenge
+    did_req = requests.get("http://49.50.164.195:8080/v1/DIDDocument?did="+did) 
+    pubkey = json.loads(json.loads(did_req.text)['data'])['verificationMethod'][0]['publicKeyBase58']
+    pubkey_global = pubkey
+    #verificationMethod[0].publicKeyBase58
+    #pubkey_global = [x for x in json_did_doc["publicKey"] if x["id"] == pubKey_identifier][0]["publicKeyBase58"]
+    challenge_global = challenge
+    return pubkey_global, challenge_global
     print("[도전자] 랜덤 생성한 챌린지 컨텐츠 : %s" % challenge)
     try:
         # get DID document - Universal resolver를 사용하는 경우
@@ -158,16 +177,35 @@ def challenging(did):
 @app.get('/challenge')
 def challenge():
     #get_body = request.body.read()
+    global challenge_global
+    global pubkey_global
     try:
         get_body = request.query['did']
     except Exception:
         response.status = 400
         return "Malformed request"
-    challenge = challenging(get_body)
-    raise HTTPResponse(json.dumps({"payload": challenge}), status=202, headers={})
+    challenge_global, pubkey_global = challenging(get_body)
+    raise HTTPResponse(json.dumps({"payload": challenge_global}), status=202, headers={})
+    return
     #challenging(get_body)
+
+@app.get('/response')
+def response():
+    #get_body = request.body.read()
+    try:
+        get_body = request.query['signature']
+    except Exception:
+        response.status = 400
+        return "Malformed request"
+    try:
+        challengeRet = verifyString(challenge_global, get_body, pubkey_global)
+    except Exception:
+        challengeRet = False
+    raise HTTPResponse(json.dumps({"Response": challengeRet}), status=202, headers={})
 
 if __name__ == "__main__":
     #signTest()
     app.run(host='0.0.0.0', port=my_port)
 
+#http://172.28.94.181:3333/challenge?did=did:mtm:DTxegdAVdSe9WL1tS7AZ3bEs4dXn1XZnSboP7NRXAjb6
+#http://172.28.94.181:3333/response?signature=abcdef
