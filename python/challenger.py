@@ -8,10 +8,19 @@ import string
 import sys
 import json
 import re
+import bottle
+import canister
 import time
+import requests
+from bottle import response, request, HTTPResponse
 from multiprocessing import Process
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs
+
+my_port = 3333
+
+app = bottle.Bottle()
+app.install(canister.Canister())
 
 #if len(sys.argv[1:]) < 1:
 #    sys.exit("[도전자] 도전받는자의 DID가 필요함)
@@ -54,11 +63,9 @@ def verifyTest():
 
 # 콜백을 위한...
 class MyHttpHandler(BaseHTTPRequestHandler):
-
     challenge = ""
     pubkey = ""
     callback_id = ""
-
     def do_POST(self):
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
@@ -89,62 +96,78 @@ def callback_http(s):
 def id_generator(size=32, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
-challenge = id_generator()
-print("[도전자] 랜덤 생성한 챌린지 컨텐츠 : %s" % challenge)
+def challenging(did):
+    challenge = id_generator()
+    #challenge = did
+    return challenge
+    print("[도전자] 랜덤 생성한 챌린지 컨텐츠 : %s" % challenge)
+    try:
+        # get DID document - Universal resolver를 사용하는 경우
+        #did_req = requests.get(universal_resolver_addr + challengee_did) 
+        json_did_doc = {
+            "@context": ["https://w3id.org/did/v1"],
+            "id": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd",
+            "service": [{
+                "type": "DidAuthService",
+                "serviceEndpoint": "http://127.0.0.1:3333/.identity/challenge"
+            }],
+            "authentication": [{
+                "type": "Ed25519SignatureAuthentication2018",
+                "publicKey": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd#key-1"
+            }],
+            "publicKey": [{
+                "id": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd#key-1",
+                "type": "Ed25519VerificationKey2018",
+                "owner": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd",
+                "publicKeyBase58": "3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp"
+            }]
+        }
 
-try:
-    # get DID document - Universal resolver를 사용하는 경우
-    #did_req = requests.get(universal_resolver_addr + challengee_did) 
-    json_did_doc = {
-        "@context": ["https://w3id.org/did/v1"],
-        "id": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd",
-        "service": [{
-            "type": "DidAuthService",
-            "serviceEndpoint": "http://127.0.0.1:3333/.identity/challenge"
-        }],
-        "authentication": [{
-            "type": "Ed25519SignatureAuthentication2018",
-            "publicKey": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd#key-1"
-        }],
-        "publicKey": [{
-            "id": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd#key-1",
-            "type": "Ed25519VerificationKey2018",
-            "owner": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd",
-            "publicKeyBase58": "3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp"
-        }]
-    }
+        # did-document 파싱 (universal resolver로 가져온 경우)
+        #json_did_doc = json.dumps(did_document)
+        endpoint = [x for x in json_did_doc["service"] if x["type"] == "DidAuthService"][0]["serviceEndpoint"]
+        print("[도전자][document] 도전받는자의 서비스 엔드포인트 : %s" % endpoint)
+        pubKey_identifier = [x for x in json_did_doc["authentication"]][0]["publicKey"]
+        pubkey = [x for x in json_did_doc["publicKey"] if x["id"] == pubKey_identifier][0]["publicKeyBase58"]
+        print("[도전자][document] 도전받는자의 공개키 : %s" % pubkey)
+        # 콜백 핸들용 랜덤 주소 생성
+        callback_id = id_generator()
+        challenge_data = {"payload": challenge, "callback": "http://127.0.0.1:4444/callback?" + callback_id}
 
-    # did-document 파싱 (universal resolver로 가져온 경우)
-    #json_did_doc = json.dumps(did_document)
-    endpoint = [x for x in json_did_doc["service"] if x["type"] == "DidAuthService"][0]["serviceEndpoint"]
-    print("[도전자][document] 도전받는자의 서비스 엔드포인트 : %s" % endpoint)
-    pubKey_identifier = [x for x in json_did_doc["authentication"]][0]["publicKey"]
-    pubkey = [x for x in json_did_doc["publicKey"] if x["id"] == pubKey_identifier][0]["publicKeyBase58"]
-    print("[도전자][document] 도전받는자의 공개키 : %s" % pubkey)
-    # 콜백 핸들용 랜덤 주소 생성
-    callback_id = id_generator()
-    challenge_data = {"payload": challenge, "callback": "http://127.0.0.1:4444/callback?" + callback_id}
+        session = requests.session()
+        challengee_addr = endpoint
 
-    session = requests.session()
-    challengee_addr = endpoint
+        print("")
+        MyHttpHandler.pubkey = pubkey
+        MyHttpHandler.challenge = challenge
+        MyHttpHandler.callback_id = callback_id
+        server = HTTPServer(('', 4444), MyHttpHandler)
 
-    print("")
-    MyHttpHandler.pubkey = pubkey
-    MyHttpHandler.challenge = challenge
-    MyHttpHandler.callback_id = callback_id
-    server = HTTPServer(('', 4444), MyHttpHandler)
+        # 콜백용 프로세스 실행
+        p = Process(target=callback_http, args=(server,))
+        p.start()
 
-    # 콜백용 프로세스 실행
-    p = Process(target=callback_http, args=(server,))
-    p.start()
+        # 챌린지 보내기
+        print("[도전자] 내 페이로드 : %s" % challenge_data)
+        print("[도전자] 도전 받는 사람 주소 : %s" % challengee_addr)
+        session.post(challengee_addr,data=json.dumps(challenge_data))
+        
+    except Exception as ex:
+        sys.exit("[도전자] Problems retrieving / validating / working with challengee's DID: %s" % str(ex))
 
-    # 챌린지 보내기
-    print("[도전자] 내 페이로드 : %s" % challenge_data)
-    print("[도전자] 도전 받는 사람 주소 : %s" % challengee_addr)
-    session.post(challengee_addr,data=json.dumps(challenge_data))
-    
-except Exception as ex:
-    sys.exit("[도전자] Problems retrieving / validating / working with challengee's DID: %s" % str(ex))
+@app.get('/challenge')
+def challenge():
+    #get_body = request.body.read()
+    try:
+        get_body = request.query['did']
+    except Exception:
+        response.status = 400
+        return "Malformed request"
+    challenge = challenging(get_body)
+    raise HTTPResponse(json.dumps({"payload": challenge}), status=202, headers={})
+    #challenging(get_body)
 
-time.sleep(2)
-p.terminate()
+if __name__ == "__main__":
+    #signTest()
+    app.run(host='0.0.0.0', port=my_port)
+

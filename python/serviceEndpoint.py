@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import bottle
+import canister
 import ed25519
 import base58
 import json
-import canister
 import requests
 from bottle import response, request, HTTPResponse
 from multiprocessing import Process
