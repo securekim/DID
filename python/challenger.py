@@ -8,20 +8,10 @@ import string
 import sys
 import json
 import re
-import bottle
-import canister
 import time
-import requests
-from bottle import response, request, HTTPResponse
 from multiprocessing import Process
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs
-
-my_port = 3333
-#challenge_global = ""
-#pubkey_global = ""
-app = bottle.Bottle()
-app.install(canister.Canister())
 
 #if len(sys.argv[1:]) < 1:
 #    sys.exit("[도전자] 도전받는자의 DID가 필요함)
@@ -35,6 +25,7 @@ if not pattern.match(challengee_did):
 universal_resolver_addr = "https://did-resolver.mitum.com/ddo/" # universal resolver를 사용하는 경우
 print("[도전자] 도전 받는자의 DID: %s" % challengee_did)
 
+
 # 사인 검증
 def verify(challenge, sig, pubkey):
     verifying_key = ed25519.VerifyingKey(base64.b64encode(base58.b58decode(pubkey)),
@@ -45,23 +36,10 @@ def verify(challenge, sig, pubkey):
                          challenge.encode("utf8"),
                          encoding=None)
 
-def verifyString(challenge, sigStr, pubkey):
-    try:
-        verifying_key = ed25519.VerifyingKey(base64.b64encode(base58.b58decode(pubkey)),
-                                            encoding="base64")
-        signedSignature_base58 = sigStr
-        signedSignature = base58.b58decode(signedSignature_base58)
-        verifying_key.verify(signedSignature,
-                         challenge.encode("utf8"),
-                         encoding=None)
-        return True
-    except Exception:
-        return False
-
 def verifyTest():
     verifying_key = ed25519.VerifyingKey(base64.b64encode(base58.b58decode("3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp")),
                                          encoding="base64")
-    signedSignature_base58 = "5Jw46W3gBpXNPEsGon6ETTLB9e7PaPRk3q6D5GBBJQp7fnhFoDVU8kmzgmY5AB7LwpbkVFm2KHmD7B2172PqL4jY"
+    signedSignature_base58 = "3ZG8eitaCnjeGjVKQ7wGCABnogtqynAEESzsoGpktWtKPH8mw7mz5jSkN9AC99YACiwZd7vPubC9wQc4fdAWMsQu"
     signedSignature = base58.b58decode(signedSignature_base58)
     #int_values = [x for x in signedSignature]
     #signedSignature_barray = bytearray.fromhex(signedSignature)
@@ -73,12 +51,12 @@ def verifyTest():
                          encoding=None)
 
 #verifyTest()
-
 # 콜백을 위한...
 class MyHttpHandler(BaseHTTPRequestHandler):
     challenge = ""
     pubkey = ""
     callback_id = ""
+
     def do_POST(self):
         self.send_response(200)
         self.send_header('Content-type', 'application/json')
@@ -109,104 +87,62 @@ def callback_http(s):
 def id_generator(size=32, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
-def challenging(did):
-    challenge = id_generator()
-    #challenge = did
-    did_req = requests.get("http://49.50.164.195:8080/v1/DIDDocument?did="+did) 
-    pubkey = json.loads(json.loads(did_req.text)['data'])['verificationMethod'][0]['publicKeyBase58']
-    pubkey_global = pubkey
-    #verificationMethod[0].publicKeyBase58
-    #pubkey_global = [x for x in json_did_doc["publicKey"] if x["id"] == pubKey_identifier][0]["publicKeyBase58"]
-    challenge_global = challenge
-    return challenge_global, pubkey_global
-    print("[도전자] 랜덤 생성한 챌린지 컨텐츠 : %s" % challenge)
-    try:
-        # get DID document - Universal resolver를 사용하는 경우
-        #did_req = requests.get(universal_resolver_addr + challengee_did) 
-        json_did_doc = {
-            "@context": ["https://w3id.org/did/v1"],
-            "id": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd",
-            "service": [{
-                "type": "DidAuthService",
-                "serviceEndpoint": "http://127.0.0.1:3333/.identity/challenge"
-            }],
-            "authentication": [{
-                "type": "Ed25519SignatureAuthentication2018",
-                "publicKey": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd#key-1"
-            }],
-            "publicKey": [{
-                "id": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd#key-1",
-                "type": "Ed25519VerificationKey2018",
-                "owner": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd",
-                "publicKeyBase58": "3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp"
-            }]
-        }
+challenge = id_generator()
+print("[도전자] 랜덤 생성한 챌린지 컨텐츠 : %s" % challenge)
 
-        # did-document 파싱 (universal resolver로 가져온 경우)
-        #json_did_doc = json.dumps(did_document)
-        endpoint = [x for x in json_did_doc["service"] if x["type"] == "DidAuthService"][0]["serviceEndpoint"]
-        print("[도전자][document] 도전받는자의 서비스 엔드포인트 : %s" % endpoint)
-        pubKey_identifier = [x for x in json_did_doc["authentication"]][0]["publicKey"]
-        pubkey = [x for x in json_did_doc["publicKey"] if x["id"] == pubKey_identifier][0]["publicKeyBase58"]
-        print("[도전자][document] 도전받는자의 공개키 : %s" % pubkey)
-        # 콜백 핸들용 랜덤 주소 생성
-        callback_id = id_generator()
-        challenge_data = {"payload": challenge, "callback": "http://127.0.0.1:4444/callback?" + callback_id}
+try:
+    # get DID document - Universal resolver를 사용하는 경우
+    #did_req = requests.get(universal_resolver_addr + challengee_did) 
+    json_did_doc = {
+        "@context": ["https://w3id.org/did/v1"],
+        "id": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd",
+        "service": [{
+            "type": "DidAuthService",
+            "serviceEndpoint": "http://127.0.0.1:3333/.identity/challenge"
+        }],
+        "authentication": [{
+            "type": "Ed25519SignatureAuthentication2018",
+            "publicKey": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd#key-1"
+        }],
+        "publicKey": [{
+            "id": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd#key-1",
+            "type": "Ed25519VerificationKey2018",
+            "owner": "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd",
+            "publicKeyBase58": "3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp"
+        }]
+    }
 
-        session = requests.session()
-        challengee_addr = endpoint
+    # did-document 파싱 (universal resolver로 가져온 경우)
+    #json_did_doc = json.dumps(did_document)
+    endpoint = [x for x in json_did_doc["service"] if x["type"] == "DidAuthService"][0]["serviceEndpoint"]
+    print("[도전자][document] 도전받는자의 서비스 엔드포인트 : %s" % endpoint)
+    pubKey_identifier = [x for x in json_did_doc["authentication"]][0]["publicKey"]
+    pubkey = [x for x in json_did_doc["publicKey"] if x["id"] == pubKey_identifier][0]["publicKeyBase58"]
+    print("[도전자][document] 도전받는자의 공개키 : %s" % pubkey)
+    # 콜백 핸들용 랜덤 주소 생성
+    callback_id = id_generator()
+    challenge_data = {"payload": challenge, "callback": "http://127.0.0.1:4444/callback?" + callback_id}
 
-        print("")
-        MyHttpHandler.pubkey = pubkey
-        MyHttpHandler.challenge = challenge
-        MyHttpHandler.callback_id = callback_id
-        server = HTTPServer(('', 4444), MyHttpHandler)
+    session = requests.session()
+    challengee_addr = endpoint
 
-        # 콜백용 프로세스 실행
-        p = Process(target=callback_http, args=(server,))
-        p.start()
+    print("")
+    MyHttpHandler.pubkey = pubkey
+    MyHttpHandler.challenge = challenge
+    MyHttpHandler.callback_id = callback_id
+    server = HTTPServer(('', 4444), MyHttpHandler)
 
-        # 챌린지 보내기
-        print("[도전자] 내 페이로드 : %s" % challenge_data)
-        print("[도전자] 도전 받는 사람 주소 : %s" % challengee_addr)
-        session.post(challengee_addr,data=json.dumps(challenge_data))
-        
-    except Exception as ex:
-        sys.exit("[도전자] Problems retrieving / validating / working with challengee's DID: %s" % str(ex))
+    # 콜백용 프로세스 실행
+    p = Process(target=callback_http, args=(server,))
+    p.start()
 
-@app.get('/challenge')
-def challenge():
-    #get_body = request.body.read()
-    global challenge_global
-    global pubkey_global
-    try:
-        get_body = request.query['did']
-    except Exception:
-        response.status = 400
-        return "Malformed request"
-    challenge_global, pubkey_global = challenging(get_body)
-    print(challenge_global)
-    raise HTTPResponse(json.dumps({"payload": challenge_global}), status=202, headers={})
-    return
-    #challenging(get_body)
+    # 챌린지 보내기
+    print("[도전자] 내 페이로드 : %s" % challenge_data)
+    print("[도전자] 도전 받는 사람 주소 : %s" % challengee_addr)
+    session.post(challengee_addr,data=json.dumps(challenge_data))
+    
+except Exception as ex:
+    sys.exit("[도전자] Problems retrieving / validating / working with challengee's DID: %s" % str(ex))
 
-@app.get('/response')
-def response():
-    #get_body = request.body.read()
-    try:
-        get_body = request.query['signature']
-    except Exception:
-        response.status = 400
-        return "Malformed request"
-    try:
-        challengeRet = verifyString(challenge_global, get_body, pubkey_global)
-    except Exception:
-        challengeRet = False
-    raise HTTPResponse(json.dumps({"Response": challengeRet}), status=202, headers={})
-
-if __name__ == "__main__":
-    #signTest()
-    app.run(host='0.0.0.0', port=my_port)
-
-#http://172.28.94.181:3333/challenge?did=did:mtm:DTxegdAVdSe9WL1tS7AZ3bEs4dXn1XZnSboP7NRXAjb6
-#http://172.28.94.181:3333/response?signature=abcdef
+time.sleep(2)
+p.terminate()
