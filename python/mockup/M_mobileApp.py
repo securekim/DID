@@ -40,6 +40,14 @@ def sign(contentStr):
     print("[모바일앱] 도전자의 페이로드를 사인한 내용 : %s" % sig_decoded )
     return sig_decoded
 
+# 1. VC REQUEST : TEST
+URL = 'http://127.0.0.1:3333/claimSpec?VCReq=123' 
+response = requests.get(URL) 
+response.status_code 
+response.text
+print("[모바일앱] VC Claim Spec Response : %s" % response.text)
+
+
 URL = 'http://127.0.0.1:3333/challenge?did=did:mtm:Exgfmw6A5RLWWeJX2G4czjLJb8yDxM' 
 response = requests.get(URL) 
 response.status_code 
