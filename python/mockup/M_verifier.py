@@ -106,5 +106,5 @@ if __name__ == "__main__":
 #http://172.28.91.165:3333/response?signature=abcdef
 
 
-#http://wiggler.securekim.com:3333/challenge?did=did:mtm:DTxegdAVdSe9WL1tS7AZ3bEs4dXn1XZnSboP7NRXAjb6
+#http://mitum.securekim.com:3333/challenge?did=did:mtm:DTxegdAVdSe9WL1tS7AZ3bEs4dXn1XZnSboP7NRXAjb6
 #http://wiggler.securekim.com:3333/response?signature=abcdef
