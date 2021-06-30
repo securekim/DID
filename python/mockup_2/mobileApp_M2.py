@@ -41,34 +41,34 @@ def sign(contentStr):
     return sig_decoded
 
 # 1.[GET] Req : VC Scheme location
-URL = 'http://127.0.0.1:3333/VCScheme?scheme=vc1' 
+URL = 'http://mtm.securekim.com:3333/VCScheme?scheme=vc1' 
 response = requests.get(URL) 
 response.status_code 
 response.text
-print("[모바일앱] VC Claim Spec Location : %s : %s" % (response.status_code, response.text))
+print("[모바일앱] VC Claim 위치 : %s : %s" % (response.status_code, response.text))
 
 # 2.[POST] Req : DID & VC
-URL = 'http://127.0.0.1:3333/VC' 
+URL = 'http://mtm.securekim.com:3333/VC' 
 data = {'did': 'did:mtm:Exgfmw6A5RLWWeJX2G4czjLJb8yDxM',
 'credentialSubject':{'selfie':'/9j/4AAQSkZJRgABAQAASABIAAD/.....',
 'name':'홍길동','amount': 3,'buyAt': '2021-03-23T18:32:23'}} 
 response = requests.post(URL, data=json.dumps(data))
 response.status_code 
 response.text
-print("[모바일앱] Challenge did and VCResponse : %s" % response.text)
+print("[모바일앱] DID : %s, VC Data : %s" % (data['did'], data))
 
 data = json.loads(response.text)
 signature = sign(data['payload'])
 
 # 3.[GET] Req : Challenge Response 
-URL = 'http://127.0.0.1:3333/response?signature='+signature 
+URL = 'http://mtm.securekim.com:3333/response?signature='+signature 
 response = requests.get(URL) 
 response.status_code 
 response.text
 print("[모바일앱] DID Auth 결과 : %s" % response.text)
 
 # 4.[GET] Req : VC
-URL = 'http://127.0.0.1:3333/VC'
+URL = 'http://mtm.securekim.com:3333/VC'
 response = requests.get(URL) 
 response.status_code 
 response.text
