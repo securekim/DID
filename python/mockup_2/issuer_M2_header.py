@@ -16,10 +16,10 @@ from bottle import response, request, HTTPResponse
 from multiprocessing import Process
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs
+import jwt
+import uuid
 
 my_port = 3333
-#challenge_global = ""
-#pubkey_global = ""
 app = bottle.Bottle()
 app.install(canister.Canister())
 
@@ -30,6 +30,8 @@ app.install(canister.Canister())
 issuerDID = "did:mtm:3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp"
 challengee_did = "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd"
 my_pk = "4YUNdokj58dyuRQpuoFY2WwCNG47Ermka5XoSFfjhdqZ"
+global _credentialSubjects
+_credentialSubjects = dict()
 
 pattern = re.compile("^did:mtm:[a-km-zA-HJ-NP-Z1-9]{30,30}$")
 if not pattern.match(challengee_did):
@@ -73,22 +75,23 @@ def VCScheme():
     print("[이슈어] VC Claim 위치 알려주기 : %s" % (schemeJSON))
     raise HTTPResponse(schemeJSON, status=200, headers={})
 
+
+
 @app.post('/VC')
 def VCPost():
     try:
-        global vc1 
-        global challenge_global
-        global pubkey_global
-        global credentialSubject
-        vc1 = json.loads(request.body.read())
-        did = vc1['did']
-        credentialSubject = vc1['credentialSubject']
-        challenge_global, pubkey_global = challenging(did)
+        vc = json.loads(request.body.read())
+        myUUID = str(uuid.uuid4())
+        did = vc['did']
+        # credentialSubject = vc['credentialSubject']
+        _credentialSubjects[myUUID] = vc['credentialSubject']
+        challenge, pubkey = challenging(did)
+        encoded_jwt = jwt.encode({"uuid": myUUID, "pubkey":pubkey, "challenge":challenge}, "secret", algorithm="HS256")
     except Exception:
         response.status = 404
         return "Error"
-    print("[이슈어] 모바일의 VC 요청 : %s" % (credentialSubject))
-    raise HTTPResponse(json.dumps({"payload": challenge_global}), status=202, headers={})
+    print("[이슈어] 모바일의 VC 요청 : %s" % (_credentialSubjects[myUUID]))
+    raise HTTPResponse(json.dumps({"payload": challenge}), status=202, headers={'Authorization':encoded_jwt})
 
 def signJSON(jsonStr, pk):
     signing_key = ed25519.SigningKey(base58.b58decode(pk))
@@ -103,6 +106,10 @@ def signJSON(jsonStr, pk):
 
 @app.get('/VC')
 def VCGet():
+    encoded_jwt = request.headers.get('Authorization')
+    decoded_jwt = jwt.decode(encoded_jwt, "secret", algorithms=["HS256"])
+    myUUID = decoded_jwt['uuid']
+    credentialSubject = _credentialSubjects[myUUID]
     issuerJSON = {
         "@context": [
             "https://www.w3.org/2018/credentials/v1",
@@ -139,24 +146,8 @@ def challenging(did):
         pubkey = "3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp"
     print("[이슈어] 랜덤 생성한 챌린지 컨텐츠 : %s" % challenge)
     print("[이슈어][document] 도전받는자의 공개키 : %s" % pubkey)
-    pubkey_global = pubkey
-    challenge_global = challenge
-    return challenge_global, pubkey_global
+    return challenge, pubkey
 
-@app.get('/challenge')
-def challenge():
-    #get_body = request.body.read()
-    global challenge_global
-    global pubkey_global
-    try:
-        get_body = request.query['did']
-        challenge_global, pubkey_global = challenging(get_body)
-    except Exception:
-        response.status = 400
-        return "Error"
-    print(challenge_global)
-    raise HTTPResponse(json.dumps({"payload": challenge_global}), status=202, headers={})
-    #challenging(get_body)
 
 @app.get('/response')
 def response():
@@ -167,7 +158,9 @@ def response():
         response.status = 400
         return "Error"
     try:
-        challengeRet = verifyString(challenge_global, get_body, pubkey_global)
+        encoded_jwt = request.headers.get('Authorization')
+        decoded_jwt = jwt.decode(encoded_jwt, "secret", algorithms=["HS256"])
+        challengeRet = verifyString(decoded_jwt['challenge'] , get_body, decoded_jwt['pubkey'])
         print("[이슈어] 받은 사인 값 : %s" % get_body)
         if challengeRet == True:
             print("VC를 만들고, 사인된 VC 보내기")
@@ -200,10 +193,3 @@ def response():
 if __name__ == "__main__":
     #signTest()
     app.run(host='0.0.0.0', port=my_port)
-
-#http://172.28.91.165:3333/challenge?did=did:mtm:DTxegdAVdSe9WL1tS7AZ3bEs4dXn1XZnSboP7NRXAjb6
-#http://172.28.91.165:3333/response?signature=abcdef
-
-
-#http://mitum.securekim.com:3333/challenge?did=did:mtm:DTxegdAVdSe9WL1tS7AZ3bEs4dXn1XZnSboP7NRXAjb6
-#http://wiggler.securekim.com:3333/response?signature=abcdef

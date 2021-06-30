@@ -64,8 +64,8 @@ def VCScheme():
         schemeJSON = json.dumps(
             {
                 "scheme": "49.50.164.195:8080/v1/scheme?id="+scheme,
-                "VCPost": "http://127.0.0.1:3333/VC",
-                "VCGet" : "http://127.0.0.1:3333/VC"
+                "VCPost": "http://mtm.securekim.com:3333/VC",
+                "VCGet" : "http://mtm.securekim.com:3333/VC"
             })
     except Exception:
         response.status = 404
@@ -176,7 +176,6 @@ def response():
     print("[이슈어] 검증 결과 : %s" % challengeRet)
     raise HTTPResponse(json.dumps({"Response": challengeRet}), status=202, headers={})
 
-#http://127.0.0.1:3333/claim?VCReq=123
 @app.get('/claim')
 def response():
     try:

@@ -45,8 +45,6 @@ def sign(contentStr):
 # 1.[GET] Req : VC Scheme location
 URL = _url+'/VCScheme?scheme=vc1' 
 response = requests.get(URL) 
-response.status_code 
-response.text
 print("[모바일앱] VC Claim 위치 : %s : %s" % (response.status_code, response.text))
 
 # 2.[POST] Req : DID & VC
@@ -57,21 +55,22 @@ data = {'did': 'did:mtm:Exgfmw6A5RLWWeJX2G4czjLJb8yDxM',
 response = requests.post(URL, data=json.dumps(data))
 response.status_code 
 response.text
+jwt = response.headers.get('Authorization')
 print("[모바일앱] DID : %s, VC Data : %s" % (data['did'], data))
 
 data = json.loads(response.text)
 signature = sign(data['payload'])
 
+###############################################
+
 # 3.[GET] Req : Challenge Response 
 URL = _url + '/response?signature='+signature 
-response = requests.get(URL) 
-response.status_code 
-response.text
+response = requests.get(URL, headers={'Authorization':jwt}) 
 print("[모바일앱] DID Auth 결과 : %s" % response.text)
 
 # 4.[GET] Req : VC
 URL = _url+'/VC' 
-response = requests.get(URL) 
+response = requests.get(URL, headers={'Authorization':jwt}) 
 response.status_code 
 response.text
 print("[모바일앱] VC 발급 결과 : %s" % response.text)
