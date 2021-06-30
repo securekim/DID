@@ -104,7 +104,7 @@ def signJSON(jsonStr, pk):
 
 @app.get('/VC')
 def VCGet():
-    encoded_jwt = request.headers.get('Authorization')
+    encoded_jwt = request.headers.get('Authorization').split(" ")[1]
     decoded_jwt = jwt.decode(encoded_jwt, "secret", algorithms=["HS256"])
     myUUID = decoded_jwt['uuid']
     credentialSubject = _credentialSubjects[myUUID]
@@ -156,7 +156,7 @@ def response():
         response.status = 400
         return "Error"
     try:
-        encoded_jwt = request.headers.get('Authorization')
+        encoded_jwt = request.headers.get('Authorization').split(" ")[1]
         decoded_jwt = jwt.decode(encoded_jwt, "secret", algorithms=["HS256"])
         challengeRet = verifyString(decoded_jwt['challenge'] , get_body, decoded_jwt['pubkey'])
         print("[이슈어] 받은 사인 값 : %s" % get_body)
