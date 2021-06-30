@@ -55,7 +55,7 @@ data = {'did': 'did:mtm:Exgfmw6A5RLWWeJX2G4czjLJb8yDxM',
 response = requests.post(URL, data=json.dumps(data))
 response.status_code 
 response.text
-jwt = response.headers.get('Authorization').split(" ")[1]
+jwt = response.headers.get('Authorization')
 print("[모바일앱] DID : %s, VC Data : %s, JWT : %s" % (data['did'], data, jwt))
 
 data = json.loads(response.text)

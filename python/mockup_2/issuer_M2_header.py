@@ -90,7 +90,7 @@ def VCPost():
         response.status = 404
         return "Error"
     print("[이슈어] 모바일의 VC 요청 : %s" % (_credentialSubjects[myUUID]))
-    raise HTTPResponse(json.dumps({"payload": challenge}), status=202, headers={'Authorization':'Bearer '+str(encoded_jwt.decode("utf-8"))})
+    raise HTTPResponse(json.dumps({"payload": challenge}), status=202, headers={'Authorization':str(encoded_jwt.decode("utf-8"))})
 
 def signJSON(jsonStr, pk):
     signing_key = ed25519.SigningKey(base58.b58decode(pk))
