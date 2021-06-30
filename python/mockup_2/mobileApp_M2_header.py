@@ -11,7 +11,7 @@ from bottle import response, request, HTTPResponse
 from multiprocessing import Process
 from os import environ
 
-_url = "http://mtm.securekim.com:3333"
+_url = "http://127.0.0.1:3333"
 
 if environ.get('WHOAMI') is not None:
     whoami = environ.get('WHOAMI')
@@ -55,7 +55,7 @@ data = {'did': 'did:mtm:Exgfmw6A5RLWWeJX2G4czjLJb8yDxM',
 response = requests.post(URL, data=json.dumps(data))
 response.status_code 
 response.text
-jwt = response.headers.get('Authorization')
+jwt = response.headers.get('Authorization').split(" ")[1]
 print("[모바일앱] DID : %s, VC Data : %s, JWT : %s" % (data['did'], data, jwt))
 
 data = json.loads(response.text)
