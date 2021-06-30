@@ -23,20 +23,20 @@ my_port = 3333
 app = bottle.Bottle()
 app.install(canister.Canister())
 
-#if len(sys.argv[1:]) < 1:
-#    sys.exit("[이슈어] 도전받는자의 DID가 필요함)
-#challengee_did = str(sys.argv[1:][0])
-
 issuerDID = "did:mtm:3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp"
-challengee_did = "did:mtm:ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd"
 my_pk = "4YUNdokj58dyuRQpuoFY2WwCNG47Ermka5XoSFfjhdqZ"
-global _credentialSubjects
-_credentialSubjects = dict()
+secret = "ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd"
+global _CREDENTIAL_SUBJECTS
+_CREDENTIAL_SUBJECTS = dict()
+global _VCSCHEME
+_VCSCHEME = dict()
+_VCSCHEME ={"driverLicense" : "vc1"}
 
-pattern = re.compile("^did:mtm:[a-km-zA-HJ-NP-Z1-9]{30,30}$")
-if not pattern.match(challengee_did):
-    sys.exit("Invalid DID provided")
-universal_resolver_addr = "https://did-resolver.mitum.com/ddo/" # universal resolver를 사용하는 경우
+# pattern = re.compile("^did:mtm:[a-km-zA-HJ-NP-Z1-9]{30,30}$")
+# if not pattern.match(issuerDID):
+#     sys.exit("Invalid DID provided")
+# universal resolver를 사용하는 경우
+universal_resolver_addr = "https://did-resolver.mitum.com/ddo/" 
 
 def verifyString(challenge, sigStr, pubkey):
     try:
@@ -63,9 +63,10 @@ def id_generator(size=32, chars=string.ascii_uppercase + string.digits):
 def VCScheme():
     try:
         scheme = request.query['scheme']
+        _VCSCHEME[scheme]
         schemeJSON = json.dumps(
             {
-                "scheme": "49.50.164.195:8080/v1/scheme?id="+scheme,
+                "scheme": "http://49.50.164.195:8080/v1/scheme?id="+_VCSCHEME[scheme],
                 "VCPost": "http://mtm.securekim.com:3333/VC",
                 "VCGet" : "http://mtm.securekim.com:3333/VC"
             })
@@ -82,14 +83,14 @@ def VCPost():
         myUUID = str(uuid.uuid4())
         did = vc['did']
         # credentialSubject = vc['credentialSubject']
-        _credentialSubjects[myUUID] = vc['credentialSubject']
+        _CREDENTIAL_SUBJECTS[myUUID] = vc['credentialSubject']
         challenge, pubkey = challenging(did)
-        encoded_jwt = jwt.encode({"uuid": myUUID, "pubkey":pubkey, "challenge":challenge}, "secret", algorithm="HS256")
+        encoded_jwt = jwt.encode({"uuid": myUUID, "pubkey":pubkey, "challenge":challenge}, secret, algorithm="HS256")
         print("[이슈어] 모바일 헤더에 JWT 발급 : %s" % (encoded_jwt))
     except Exception:
         response.status = 404
         return "Error"
-    print("[이슈어] 모바일의 VC 요청 : %s" % (_credentialSubjects[myUUID]))
+    print("[이슈어] 모바일의 VC 요청 : %s" % (_CREDENTIAL_SUBJECTS[myUUID]))
     raise HTTPResponse(json.dumps({"payload": challenge}), status=202, headers={'Authorization':str(encoded_jwt.decode("utf-8"))})
 
 def signJSON(jsonStr, pk):
@@ -108,9 +109,9 @@ def VCGet():
     encoded_jwt = request.headers.get('Authorization')
     print("[이슈어] 모바일의 JWT 토큰 :" + str(encoded_jwt))
     encoded_jwt = encoded_jwt.split(" ")[1]
-    decoded_jwt = jwt.decode(encoded_jwt, "secret", algorithms=["HS256"])
+    decoded_jwt = jwt.decode(encoded_jwt, secret, algorithms=["HS256"])
     myUUID = decoded_jwt['uuid']
-    credentialSubject = _credentialSubjects[myUUID]
+    credentialSubject = _CREDENTIAL_SUBJECTS[myUUID]
     issuerJSON = {
         "@context": [
             "https://www.w3.org/2018/credentials/v1",
@@ -161,7 +162,7 @@ def response():
         encoded_jwt = request.headers.get('Authorization')
         print("[이슈어] 모바일의 JWT 토큰 :" + str(encoded_jwt))
         encoded_jwt = encoded_jwt.split(" ")[1]
-        decoded_jwt = jwt.decode(encoded_jwt, "secret", algorithms=["HS256"])
+        decoded_jwt = jwt.decode(encoded_jwt, secret, algorithms=["HS256"])
         challengeRet = verifyString(decoded_jwt['challenge'] , get_body, decoded_jwt['pubkey'])
         print("[이슈어] 받은 사인 값 : %s" % get_body)
         if challengeRet == True:

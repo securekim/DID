@@ -11,7 +11,7 @@ from bottle import response, request, HTTPResponse
 from multiprocessing import Process
 from os import environ
 
-_url = "http://mtm.securekim.com:3333"
+_url = "http://127.0.0.1:3333"
 
 if environ.get('WHOAMI') is not None:
     whoami = environ.get('WHOAMI')
@@ -43,7 +43,7 @@ def sign(contentStr):
     return sig_decoded
 
 # 1.[GET] Req : VC Scheme location
-URL = _url+'/VCScheme?scheme=vc1' 
+URL = _url+'/VCScheme?scheme=driverLicense' 
 response = requests.get(URL) 
 print("[모바일앱] VC Claim 위치 : %s : %s" % (response.status_code, response.text))
 
