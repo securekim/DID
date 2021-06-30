@@ -106,7 +106,7 @@ def signJSON(jsonStr, pk):
 @app.get('/VC')
 def VCGet():
     encoded_jwt = request.headers.get('Authorization')
-    print("[이슈어] 모바일의 JWT 토큰 :" + encoded_jwt)
+    print("[이슈어] 모바일의 JWT 토큰 :" + str(encoded_jwt))
     encoded_jwt = encoded_jwt.split(" ")[1]
     decoded_jwt = jwt.decode(encoded_jwt, "secret", algorithms=["HS256"])
     myUUID = decoded_jwt['uuid']
@@ -159,7 +159,7 @@ def response():
         return "Error"
     try:
         encoded_jwt = request.headers.get('Authorization')
-        print("[이슈어] 모바일의 JWT 토큰 :" + encoded_jwt)
+        print("[이슈어] 모바일의 JWT 토큰 :" + str(encoded_jwt))
         encoded_jwt = encoded_jwt.split(" ")[1]
         decoded_jwt = jwt.decode(encoded_jwt, "secret", algorithms=["HS256"])
         challengeRet = verifyString(decoded_jwt['challenge'] , get_body, decoded_jwt['pubkey'])
