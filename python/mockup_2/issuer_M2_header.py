@@ -85,11 +85,12 @@ def VCPost():
         _credentialSubjects[myUUID] = vc['credentialSubject']
         challenge, pubkey = challenging(did)
         encoded_jwt = jwt.encode({"uuid": myUUID, "pubkey":pubkey, "challenge":challenge}, "secret", algorithm="HS256")
+        print("[이슈어] 모바일 헤더에 JWT 발급 : %s" % (encoded_jwt))
     except Exception:
         response.status = 404
         return "Error"
     print("[이슈어] 모바일의 VC 요청 : %s" % (_credentialSubjects[myUUID]))
-    raise HTTPResponse(json.dumps({"payload": challenge}), status=202, headers={'Authorization':encoded_jwt})
+    raise HTTPResponse(json.dumps({"payload": challenge}), status=202, headers={'Authorization':'Bearer '+encoded_jwt})
 
 def signJSON(jsonStr, pk):
     signing_key = ed25519.SigningKey(base58.b58decode(pk))
@@ -145,7 +146,6 @@ def challenging(did):
     print("[이슈어] 랜덤 생성한 챌린지 컨텐츠 : %s" % challenge)
     print("[이슈어][document] 도전받는자의 공개키 : %s" % pubkey)
     return challenge, pubkey
-
 
 @app.get('/response')
 def response():
