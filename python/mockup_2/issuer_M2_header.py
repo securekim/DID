@@ -75,8 +75,6 @@ def VCScheme():
     print("[이슈어] VC Claim 위치 알려주기 : %s" % (schemeJSON))
     raise HTTPResponse(schemeJSON, status=200, headers={})
 
-
-
 @app.post('/VC')
 def VCPost():
     try:

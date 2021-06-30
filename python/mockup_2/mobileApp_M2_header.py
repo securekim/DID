@@ -56,7 +56,7 @@ response = requests.post(URL, data=json.dumps(data))
 response.status_code 
 response.text
 jwt = response.headers.get('Authorization')
-print("[모바일앱] DID : %s, VC Data : %s" % (data['did'], data))
+print("[모바일앱] DID : %s, VC Data : %s, JWT : %s" % (data['did'], data, jwt))
 
 data = json.loads(response.text)
 signature = sign(data['payload'])
@@ -65,12 +65,12 @@ signature = sign(data['payload'])
 
 # 3.[GET] Req : Challenge Response 
 URL = _url + '/response?signature='+signature 
-response = requests.get(URL, headers={'Authorization':jwt}) 
+response = requests.get(URL, headers={'Authorization':'Bearer ' + str(jwt)}) 
 print("[모바일앱] DID Auth 결과 : %s" % response.text)
 
 # 4.[GET] Req : VC
 URL = _url+'/VC' 
-response = requests.get(URL, headers={'Authorization':jwt}) 
+response = requests.get(URL, headers={'Authorization':'Bearer ' + str(jwt)}) 
 response.status_code 
 response.text
 print("[모바일앱] VC 발급 결과 : %s" % response.text)

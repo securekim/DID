@@ -151,10 +151,11 @@ def challenge():
     try:
         get_body = request.query['did']
         challenge_global, pubkey_global = challenging(get_body)
+        print("[GET CHALLENGE] : Challenge : %s, pubkey : %s" %(challenge_global, pubkey_global))
     except Exception:
+        print("[GET CAHLLENGE] ERROR")
         response.status = 400
         return "Error"
-    print(challenge_global)
     raise HTTPResponse(json.dumps({"payload": challenge_global}), status=202, headers={})
     #challenging(get_body)
 
