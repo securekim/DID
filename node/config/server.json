@@ -1,0 +1,4 @@
+{
+    "port" : 80,
+    "JWT_SECRET" : "TEST_JWT_SECRET_PLEASE_DO_NOT_PUBLIC"
+}
