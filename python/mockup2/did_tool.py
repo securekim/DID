@@ -6,19 +6,38 @@ import requests
 import random
 import string
 import json
-import bottle
-import canister
 import datetime
 import requests
-from bottle import response, request, HTTPResponse
 import jwt
 import uuid
+import logging
 
-global _CREDENTIAL_SUBJECTS
-global _VCSCHEME
+global _CREDENTIAL_SUBJECTS 
 _CREDENTIAL_SUBJECTS = dict()
+global _VCSCHEME
 _VCSCHEME = dict()
 _VCSCHEME ={"driverLicense" : "vc1"}
+
+_level = {
+    "debug" : logging.DEBUG,
+    "info" : logging.INFO,
+    "warning" : logging.WARNING,
+    "error" : logging.ERROR,
+    "critical" : logging.CRITICAL
+}
+
+def __get_logger(level):
+    __logger = logging.getLogger('logger')
+    formatter = logging.Formatter(
+        '%(levelname)s#%(asctime)s#%(message)s >> @file::%(filename)s@line::%(lineno)s')
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(formatter)
+    __logger.addHandler(stream_handler)
+    __logger.setLevel(_level[level])
+    return __logger
+
+def getUUID():
+    return str(uuid.uuid4())
 
 def signString(string, privateKey):
     try:
@@ -47,10 +66,18 @@ def generateChallenge(size=32, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 def saveCredentialSubject(uuid, credentialSubject):
-    _CREDENTIAL_SUBJECTS[uuid] = credentialSubject
+    try:
+        _CREDENTIAL_SUBJECTS[uuid] = credentialSubject
+        return True
+    except Exception:
+        return False
 
 def getCredentialSubject(uuid):
-    return _CREDENTIAL_SUBJECTS[uuid]
+    try:
+        credentialSubject = _CREDENTIAL_SUBJECTS[uuid]
+        return credentialSubject
+    except Exception:
+        return None
 
 def makeSampleVC(issuer_did, credentialSubject):
     vc = {
@@ -73,21 +100,26 @@ def makeSampleVC(issuer_did, credentialSubject):
     return vc
 
 def makeJWS(vc, privateKey):
-    headerJSON = {"alg":"RS256","b64":False,"crit":["b64"]}
-    header_base64 = base64.urlsafe_b64encode(json.dumps(headerJSON).encode('utf8'))
-    header_ = header_base64.decode('utf8').rstrip("=")
-    vcString = json.dumps(vc)
-    sig_decoded = signString(vcString, privateKey)
-    sig_base64 = base64.urlsafe_b64encode(base58.b58decode(sig_decoded))
-    sig_ = sig_base64.decode('utf8').rstrip("=")
-    return header_ + ".." + sig_
+    try :
+        headerJSON = {"alg":"RS256","b64":False,"crit":["b64"]}
+        header_base64 = base64.urlsafe_b64encode(json.dumps(headerJSON).encode('utf8'))
+        header_ = header_base64.decode('utf8').rstrip("=")
+        vcString = json.dumps(vc)
+        sig_decoded = signString(vcString, privateKey)
+        sig_base64 = base64.urlsafe_b64encode(base58.b58decode(sig_decoded))
+        sig_ = sig_base64.decode('utf8').rstrip("=")
+        return header_ + ".." + sig_
+    except Exception:
+        return None
 
 def getVerifiedJWT(request, secret):
-    encoded_jwt = request.headers.get('Authorization')
-    print("[이슈어] 모바일의 JWT 토큰 :" + str(encoded_jwt))
-    encoded_jwt = encoded_jwt.split(" ")[1] # FROM Bearer
-    decoded_jwt = jwt.decode(encoded_jwt, secret, algorithms=["HS256"])
-    return decoded_jwt
+    try :
+        encoded_jwt = request.headers.get('Authorization')
+        encoded_jwt = encoded_jwt.split(" ")[1] # FROM Bearer
+        decoded_jwt = jwt.decode(encoded_jwt, secret, algorithms=["HS256"])
+        return decoded_jwt
+    except Exception:
+        return None
 
 def getPubkeyFromDIDDocument(did):
     try:
@@ -96,3 +128,6 @@ def getPubkeyFromDIDDocument(did):
     except Exception:
         pubkey = "3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp"
     return pubkey
+
+def getVCScheme(scheme):
+    return _VCSCHEME[scheme]

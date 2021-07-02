@@ -56,8 +56,6 @@ data = {'did': 'did:mtm:Exgfmw6A5RLWWeJX2G4czjLJb8yDxM',
 'credentialSubject':{'selfie':'/9j/4AAQSkZJRgABAQAASABIAAD/.....',
 'name':'홍길동','amount': 3,'buyAt': '2021-03-23T18:32:23'}} 
 response = requests.post(URL, data=json.dumps(data))
-response.status_code 
-response.text
 print("[모바일앱] DID : %s, VC Data : %s" % (data['did'], data))
 
 data = json.loads(response.text)
