@@ -5,57 +5,44 @@ import base58
 import requests
 import random
 import string
-import sys
 import json
-import re
 import bottle
 import canister
-import time
+import datetime
 import requests
 from bottle import response, request, HTTPResponse
-from multiprocessing import Process
-from http.server import BaseHTTPRequestHandler, HTTPServer
-from urllib.parse import parse_qs
 import jwt
 import uuid
+# import did_tool as tool
 
-my_port = 3333
+issuer_port = 3333
 app = bottle.Bottle()
 app.install(canister.Canister())
 
-issuerDID = "did:mtm:3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp"
-my_pk = "4YUNdokj58dyuRQpuoFY2WwCNG47Ermka5XoSFfjhdqZ"
-secret = "ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd"
 global _CREDENTIAL_SUBJECTS
-_CREDENTIAL_SUBJECTS = dict()
 global _VCSCHEME
+_CREDENTIAL_SUBJECTS = dict()
 _VCSCHEME = dict()
 _VCSCHEME ={"driverLicense" : "vc1"}
-
-# pattern = re.compile("^did:mtm:[a-km-zA-HJ-NP-Z1-9]{30,30}$")
-# if not pattern.match(issuerDID):
-#     sys.exit("Invalid DID provided")
-# universal resolver를 사용하는 경우
+_ISSUER_DID = "did:mtm:3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp"
+_ISSUER_PRIVATEKEY = "4YUNdokj58dyuRQpuoFY2WwCNG47Ermka5XoSFfjhdqZ"
+_ISSUER_SECRET = "ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd"
 universal_resolver_addr = "https://did-resolver.mitum.com/ddo/" 
 
-def verifyString(challenge, sigStr, pubkey):
+def verifyString(string, signStr, pubkey):
     try:
         verifying_key = ed25519.VerifyingKey(base64.b64encode(base58.b58decode(pubkey)),
                                             encoding="base64")
-        signedSignature_base58 = sigStr
+        signedSignature_base58 = signStr
         signedSignature = base58.b58decode(signedSignature_base58)
         verifying_key.verify(signedSignature,
-                         challenge.encode("utf8"),
+                         string.encode("utf8"),
                          encoding=None)
         return True
     except Exception:
         return False
 
-def callback_http(s):
-    s.serve_forever()
-
-# challenge generation function
-def id_generator(size=32, chars=string.ascii_uppercase + string.digits):
+def generateChallenge(size=32, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
 # {URLS} : 1. [GET] Req : VC Schema location
@@ -76,79 +63,95 @@ def VCScheme():
     print("[이슈어] VC Claim 위치 알려주기 : %s" % (schemeJSON))
     raise HTTPResponse(schemeJSON, status=200, headers={})
 
+def saveCredentialSubject(uuid, credentialSubject):
+    _CREDENTIAL_SUBJECTS[uuid] = credentialSubject
+
+def getCredentialSubject(uuid):
+    return _CREDENTIAL_SUBJECTS[uuid]
+
 @app.post('/VC')
 def VCPost():
     try:
         vc = json.loads(request.body.read())
         myUUID = str(uuid.uuid4())
         did = vc['did']
-        # credentialSubject = vc['credentialSubject']
-        _CREDENTIAL_SUBJECTS[myUUID] = vc['credentialSubject']
-        challenge, pubkey = challenging(did)
-        encoded_jwt = jwt.encode({"uuid": myUUID, "pubkey":pubkey, "challenge":challenge}, secret, algorithm="HS256")
+        credentialSubject = vc['credentialSubject']
+        saveCredentialSubject(myUUID, credentialSubject)
+        challenge = generateChallenge()
+        print("[이슈어] 랜덤 생성한 챌린지 컨텐츠 : %s" % challenge)
+        pubkey = getPubkeyFromDIDDocument(did)
+        print("[이슈어][document] 도전받는자의 공개키 : %s" % pubkey)
+        encoded_jwt = jwt.encode({"uuid": myUUID, "pubkey":pubkey, "challenge":challenge}, _ISSUER_SECRET, algorithm="HS256")
         print("[이슈어] 모바일 헤더에 JWT 발급 : %s" % (encoded_jwt))
     except Exception:
         response.status = 404
         return "Error"
-    print("[이슈어] 모바일의 VC 요청 : %s" % (_CREDENTIAL_SUBJECTS[myUUID]))
+    print("[이슈어] 모바일의 VC 요청 : %s" % (credentialSubject))
     raise HTTPResponse(json.dumps({"payload": challenge, "endPoint":"http://mtm.securekim.com:3333/response"}), status=202, headers={'Authorization':str(encoded_jwt.decode("utf-8"))})
 
-def signJSON(jsonStr, pk):
+def signString(jsonStr, pk):
     signing_key = ed25519.SigningKey(base58.b58decode(pk))
     sig = signing_key.sign(jsonStr.encode("utf8"), encoding=None)
-    # print("[이슈어] 모바일의 페이로드 : %s" % jsonStr)
-    #sig_decoded = sig.decode("utf8")
-    #sig_decoded = sig
     sig_base58 = base58.b58encode(sig)
     sig_decoded = sig_base58.decode("utf-8")
     print("[이슈어] 모바일의 페이로드를 사인한 내용 : %s" % sig_decoded )
     return sig_decoded
 
-@app.get('/VC')
-def VCGet():
-    encoded_jwt = request.headers.get('Authorization')
-    print("[이슈어] 모바일의 JWT 토큰 :" + str(encoded_jwt))
-    encoded_jwt = encoded_jwt.split(" ")[1]
-    decoded_jwt = jwt.decode(encoded_jwt, secret, algorithms=["HS256"])
-    myUUID = decoded_jwt['uuid']
-    credentialSubject = _CREDENTIAL_SUBJECTS[myUUID]
-    issuerJSON = {
+def makeSampleVC(issuer_did, credentialSubject):
+    vc = {
         "@context": [
             "https://www.w3.org/2018/credentials/v1",
             "https://www.w3.org/2018/credentials/examples/v1"
         ],
         "id": " http://mitum.secureKim.com/credentials/3732 ",
         "type": ["VerifiableCredential", "DriverCredential"],
-        "issuer": issuerDID,
+        "issuer": issuer_did,
         "issuanceDate": "2021-06-23T19:73:24Z",
         "credentialSubject": credentialSubject,
         "proof": {
             "type": "Ed25519Signature2018",
-            "created": "2017-06-24T21:19:10Z",
+            "created": str(datetime.datetime.utcnow().isoformat()),
             "proofPurpose": "assertionMethod", 
             "verificationMethod": "https://secureKim.com/issuers/keys/1"
         }
     }
-    issuerJSONStr = json.dumps(issuerJSON) # JSON TO STRING
-    #json.loads(json_string) # STRING TO JSON 
-    sig_decoded = signJSON(issuerJSONStr, my_pk)
-    sig_base64 = base64.urlsafe_b64encode(base58.b58decode(sig_decoded))
-    header = {"alg":"RS256","b64":False,"crit":["b64"]}
-    header_base64 = base64.urlsafe_b64encode(json.dumps(header).encode('utf8'))
-    issuerJSON['proof']["jws"] = header_base64.decode('utf8').rstrip("=")+".."+sig_base64.decode('utf8').rstrip("=")
-    print("[이슈어] 최종 발급된 VC : %s" % issuerJSON)
-    raise HTTPResponse(json.dumps({"Response":True, "VC": issuerJSON}), status=202, headers={})
+    return vc
 
-def challenging(did):
-    challenge = id_generator()
+def makeJWS(vc):
+    headerJSON = {"alg":"RS256","b64":False,"crit":["b64"]}
+    header_base64 = base64.urlsafe_b64encode(json.dumps(headerJSON).encode('utf8'))
+    header_ = header_base64.decode('utf8').rstrip("=")
+    vcString = json.dumps(vc)
+    sig_decoded = signString(vcString, _ISSUER_PRIVATEKEY)
+    sig_base64 = base64.urlsafe_b64encode(base58.b58decode(sig_decoded))
+    sig_ = sig_base64.decode('utf8').rstrip("=")
+    return header_ + ".." + sig_
+
+def getVerifiedJWT(request):
+    encoded_jwt = request.headers.get('Authorization')
+    print("[이슈어] 모바일의 JWT 토큰 :" + str(encoded_jwt))
+    encoded_jwt = encoded_jwt.split(" ")[1] # FROM Bearer
+    decoded_jwt = jwt.decode(encoded_jwt, _ISSUER_SECRET, algorithms=["HS256"])
+    return decoded_jwt
+
+@app.get('/VC')
+def VCGet():
+    jwt = getVerifiedJWT(request)
+    myUUID = jwt['uuid']
+    credentialSubject = getCredentialSubject(myUUID)
+    vc = makeSampleVC(_ISSUER_DID, credentialSubject)
+    jws = makeJWS(vc)
+    vc['proof']["jws"] = jws
+    print("[이슈어] 최종 발급된 VC : %s" % vc)
+    raise HTTPResponse(json.dumps({"Response":True, "VC": vc}), status=202, headers={})
+
+def getPubkeyFromDIDDocument(did):
     try:
         did_req = requests.get("http://49.50.164.195:8080/v1/DIDDocument?did="+did) 
         pubkey = json.loads(json.loads(did_req.text)['data'])['verificationMethod'][0]['publicKeyBase58']
     except Exception:
         pubkey = "3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp"
-    print("[이슈어] 랜덤 생성한 챌린지 컨텐츠 : %s" % challenge)
-    print("[이슈어][document] 도전받는자의 공개키 : %s" % pubkey)
-    return challenge, pubkey
+    return pubkey
 
 @app.get('/response')
 def response():
@@ -159,11 +162,8 @@ def response():
         response.status = 400
         return "Error"
     try:
-        encoded_jwt = request.headers.get('Authorization')
-        print("[이슈어] 모바일의 JWT 토큰 :" + str(encoded_jwt))
-        encoded_jwt = encoded_jwt.split(" ")[1]
-        decoded_jwt = jwt.decode(encoded_jwt, secret, algorithms=["HS256"])
-        challengeRet = verifyString(decoded_jwt['challenge'] , get_body, decoded_jwt['pubkey'])
+        jwt = getVerifiedJWT(request)
+        challengeRet = verifyString(jwt['challenge'] , get_body, jwt['pubkey'])
         print("[이슈어] 받은 사인 값 : %s" % get_body)
         if challengeRet == True:
             print("VC를 만들고, 사인된 VC 보내기")
@@ -172,27 +172,6 @@ def response():
     print("[이슈어] 검증 결과 : %s" % challengeRet)
     raise HTTPResponse(json.dumps({"Response": challengeRet}), status=202, headers={})
 
-@app.get('/claim')
-def response():
-    try:
-        get_body = request.query['VCReq']
-    except Exception:
-        response.status = 400
-        return "Error"
-    raise HTTPResponse(json.dumps({
-            "iss": "did:mtm:serverdid",
-            "@context": ["https://www.w3.org/2018/credentials/v1","https://www.w3.org/2018/credentials/examples/v1"],
-            "type": "VCReq",
-            "claims": {
-                "selfie": { "essential": True, "reason": "For photo identification"},
-                "name": {"essential": True, "reason": "For ID"},
-                "amount": {"essential": False, "reason": "null"},
-                "email" : {"essential": True, "reason": "We need to be able to email you"}
-            }
-        }
-    ), status=202, headers={})
-    
-
 if __name__ == "__main__":
     #signTest()
-    app.run(host='0.0.0.0', port=my_port)
+    app.run(host='0.0.0.0', port=issuer_port)
