@@ -23,7 +23,7 @@ SAMPLE = {
         "privateKey" : "4YUNdokj58dyuRQpuoFY2WwCNG47Ermka5XoSFfjhdqZ",
         "publicKey" : "3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp",
         "secret" : "ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd",
-        "url" : "http://127.0.0.1:3333"
+        "url" : "http://mtm.securekim.com:3333"
     },
     "holder" : {
         "did" : "did:mtm:Exgfmw6A5RLWWeJX2G4czjLJb8yDxM",
