@@ -71,9 +71,11 @@ def response():
         challengeRet = DID.verifyString(jwt['challenge'] , get_body, jwt['pubkey'])
         if challengeRet == True:
             LOGW("[Issuer] DID AUTH - Verified : 사인 값(%s) 검증 성공. VC를 만들고, 사인된 VC 보내기" % get_body)
+        else:
+            LOGW("[Issuer] DID AUTH - Verify : 사인 값(%s) 검증 실패." % get_body)
     except Exception:
         challengeRet = False
-        LOGW("[Issuer] DID AUTH - Verify : 사인 값(%s) 검증 실패" % jwt['challenge'])
+        LOGW("[Issuer] DID AUTH - Verify : ERROR : 검증 실패" % jwt['challenge'])
     raise HTTPResponse(json.dumps({"Response": challengeRet}), status=202, headers={})
 
 @app.get('/VC')
