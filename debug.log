@@ -1,0 +1,116 @@
+INFO:canister:============
+INFO:canister:Initializing
+INFO:canister:============
+INFO:canister:python version: 3.8.5 (default, May 27 2021, 13:30:53) 
+[GCC 9.3.0]
+INFO:canister:bottle version: 0.12.19
+INFO:canister:------------------------------------------
+INFO:canister:catchall                       = True
+INFO:canister:autojson                       = True
+INFO:canister:------------------------------------------
+INFO:canister:Session timeout is 3600 seconds. Checking for expired sessions every 60 seconds. 
+INFO:canister:GET http://127.0.0.1:3333/VCScheme?scheme=driverLicense
+INFO:canister:Session created: +VxNHfjZ/dOxi+zhQinBcmLY
+WARNING:logger:[Issuer] 1. VC Scheme 위치 알려주기 : {"scheme": "http://49.50.164.195:8080/v1/scheme?id=vc1", "VCPost": "http://127.0.0.1:3333/VC", "VCGet": "http://127.0.0.1:3333/VC"}
+INFO:canister:POST http://127.0.0.1:3333/VC
+INFO:canister:Session created: sjJJPk94Zd2YzjkTHiHmtNx2
+WARNING:logger:[Issuer] 2. DID AUTH - VC Post({'selfie': '/9j/4AAQSkZJRgABAQAASABIAAD/.....', 'name': '홍길동', 'amount': 3, 'buyAt': '2021-07-04T20:01:44.067077'}) : 생성한 챌린지(GVKM23LII898E1IE65ULW95RIC2W57BW), DID Document의 공개키(3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp), Holder에게 JWT 발급(b'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1dWlkIjoiNjFjM2M5YmQtM2M4Ni00MjFlLWI4N2UtMmRmMGZkNzBhYzliIiwicHVia2V5IjoiM3JmclpnR1pIWHBqaUdyMW0zU0tBYlpTa3RZdWRmSkNCc29KbTRtMVhVZ3AiLCJjaGFsbGVuZ2UiOiJHVktNMjNMSUk4OThFMUlFNjVVTFc5NVJJQzJXNTdCVyJ9.zbDCIz8AJmNkR3Bu9bTRzgb1_ASIPMt31yMBTfyW4O0').
+INFO:canister:GET http://127.0.0.1:3333/response?signature=2V5stEJ3YfnoUgTpW3Vnvquh7HDLpSkepffNSEGy613Y9fiYvLbWpNQyPHVYxi7g1piiiEALQrF14Ahm6neMML1V
+INFO:canister:Session created: XRIYZu3usB6iiIOjr6f1p55D
+WARNING:logger:[Issuer] 3. DID AUTH - Verify : ERROR : 사인 검증 실패 : 2V5stEJ3YfnoUgTpW3Vnvquh7HDLpSkepffNSEGy613Y9fiYvLbWpNQyPHVYxi7g1piiiEALQrF14Ahm6neMML1V
+INFO:canister:GET http://127.0.0.1:3333/VC
+INFO:canister:Session created: 9AaM37+knP+gQiCHoAdAEK3A
+WARNING:logger:[Issuer] 4. VC Issuance - {'@context': ['https://www.w3.org/2018/credentials/v1', 'https://www.w3.org/2018/credentials/examples/v1'], 'id': ' http://mitum.secureKim.com/credentials/3732 ', 'type': ['VerifiableCredential', 'DriverCredential'], 'issuer': 'did:mtm:3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp', 'issuanceDate': '2021-06-23T19:73:24Z', 'credentialSubject': {'selfie': '/9j/4AAQSkZJRgABAQAASABIAAD/.....', 'name': '홍길동', 'amount': 3, 'buyAt': '2021-07-04T20:01:44.067077'}, 'proof': {'type': 'Ed25519Signature2018', 'created': '2021-07-04T20:01:57.326511', 'proofPurpose': 'assertionMethod', 'verificationMethod': 'https://secureKim.com/issuers/keys/1', 'jws': 'eyJhbGciOiAiUlMyNTYiLCAiYjY0IjogZmFsc2UsICJjcml0IjogWyJiNjQiXX0..CcqJw9FNBtQX9l-kUwew1GfYtdG7jcfxUkkWVORCTGqewtc5Tg_7_S97lTEyY5S9H-AK04zNjqtMqaIoRzctDg'}}
+INFO:canister:GET http://127.0.0.1:3333/VCScheme?scheme=driverLicense
+INFO:canister:Session created: 8pQM5ZPp1FvgmDtF7ZGpb9RI
+WARNING:logger:[Issuer] 1. VC Scheme 위치 알려주기 : {"scheme": "http://49.50.164.195:8080/v1/scheme?id=vc1", "VCPost": "http://127.0.0.1:3333/VC", "VCGet": "http://127.0.0.1:3333/VC"}
+INFO:canister:POST http://127.0.0.1:3333/VC
+INFO:canister:Session created: H0026NcVNdzGtytVsI4ocBhe
+WARNING:logger:[Issuer] 2. DID AUTH - VC Post({'selfie': '/9j/4AAQSkZJRgABAQAASABIAAD/.....', 'name': '홍길동', 'amount': 3, 'buyAt': '2021-07-04T20:02:13.485520'}) : 생성한 챌린지(1STSG03S7Z3OLPVKX1T971RXLAQ9JJLD), DID Document의 공개키(3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp), Holder에게 JWT 발급(b'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1dWlkIjoiMWNhMzhmOWEtYWE1ZC00MDBlLTg5MzUtYTE0YzJhYWEyMWJkIiwicHVia2V5IjoiM3JmclpnR1pIWHBqaUdyMW0zU0tBYlpTa3RZdWRmSkNCc29KbTRtMVhVZ3AiLCJjaGFsbGVuZ2UiOiIxU1RTRzAzUzdaM09MUFZLWDFUOTcxUlhMQVE5SkpMRCJ9.4bPFicaU8QXrCX0GrKH7R_NAfX9qyH3TYi-drRd0_QE').
+INFO:canister:GET http://127.0.0.1:3333/response?signature=5QMLy1eoNxCi7QjJC2rSBms1kTCHGPYor6TimGTMSeD38JKwnKVR55zNb8dxvto8xk4nvCzM5XvgTs46o1ThCiHp
+INFO:canister:Session created: WUrpD538UNBAeADx7Fw9gN/d
+WARNING:logger:[Issuer] 3. DID AUTH - Verify : ERROR : 사인 검증 실패 : 5QMLy1eoNxCi7QjJC2rSBms1kTCHGPYor6TimGTMSeD38JKwnKVR55zNb8dxvto8xk4nvCzM5XvgTs46o1ThCiHp
+INFO:canister:GET http://127.0.0.1:3333/VC
+INFO:canister:Session created: cDuhkhnVFMsSNATfPCzdMhSn
+WARNING:logger:[Issuer] 4. VC Issuance - {'@context': ['https://www.w3.org/2018/credentials/v1', 'https://www.w3.org/2018/credentials/examples/v1'], 'id': ' http://mitum.secureKim.com/credentials/3732 ', 'type': ['VerifiableCredential', 'DriverCredential'], 'issuer': 'did:mtm:3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp', 'issuanceDate': '2021-06-23T19:73:24Z', 'credentialSubject': {'selfie': '/9j/4AAQSkZJRgABAQAASABIAAD/.....', 'name': '홍길동', 'amount': 3, 'buyAt': '2021-07-04T20:02:13.485520'}, 'proof': {'type': 'Ed25519Signature2018', 'created': '2021-07-04T20:03:14.318375', 'proofPurpose': 'assertionMethod', 'verificationMethod': 'https://secureKim.com/issuers/keys/1', 'jws': 'eyJhbGciOiAiUlMyNTYiLCAiYjY0IjogZmFsc2UsICJjcml0IjogWyJiNjQiXX0..M2ADRYWb1hEt9Z_d4hKbnpez-6dPUSnaKuDlM9FEZ6qdaVnt2_uNbD16_N_o2JjQRuxcax8kzO3c2hmL7dgwBg'}}
+INFO:canister:GET http://127.0.0.1:3333/VCScheme?scheme=driverLicense
+INFO:canister:Session created: sW9XOMOZHohwbpx37M5yodOz
+WARNING:logger:[Issuer] 1. VC Scheme 위치 알려주기 : {"scheme": "http://49.50.164.195:8080/v1/scheme?id=vc1", "VCPost": "http://127.0.0.1:3333/VC", "VCGet": "http://127.0.0.1:3333/VC"}
+INFO:canister:POST http://127.0.0.1:3333/VC
+INFO:canister:Session created: WxQaG1ut9kUN7g6IXR+5z/Wt
+WARNING:logger:[Issuer] 2. DID AUTH - VC Post({'selfie': '/9j/4AAQSkZJRgABAQAASABIAAD/.....', 'name': '홍길동', 'amount': 3, 'buyAt': '2021-07-04T20:03:19.002609'}) : 생성한 챌린지(RA5DMLK1RSPHUHEJR82SEPUNZLLEGWAL), DID Document의 공개키(3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp), Holder에게 JWT 발급(b'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1dWlkIjoiN2EyNWY4MTktYzUzOS00MGM4LTkzZTAtM2EwZGU1MjI4Y2I1IiwicHVia2V5IjoiM3JmclpnR1pIWHBqaUdyMW0zU0tBYlpTa3RZdWRmSkNCc29KbTRtMVhVZ3AiLCJjaGFsbGVuZ2UiOiJSQTVETUxLMVJTUEhVSEVKUjgyU0VQVU5aTExFR1dBTCJ9.8AnwSv3t_MFZUr4wqkc-K3DrTQK9VOQhbLHpzDeUylw').
+INFO:canister:GET http://127.0.0.1:3333/response?signature=2xer3cXUeSzdABZonqF2KcTp9jgiGMi13Fzb5Xs1LNTtpnSveTRdnnCdCa9SCGYCMy4pgJkJWuRtBhRod2ryjTsS
+INFO:canister:Session created: 3TOa44VNd3XAgpepth7MvFPF
+WARNING:logger:[Issuer] 3. DID AUTH - Verify : ERROR : 사인 검증 실패 : 2xer3cXUeSzdABZonqF2KcTp9jgiGMi13Fzb5Xs1LNTtpnSveTRdnnCdCa9SCGYCMy4pgJkJWuRtBhRod2ryjTsS
+INFO:canister:GET http://127.0.0.1:3333/VC
+INFO:canister:Session created: Amhrqa+WWqTr0cBf1fmlRDCP
+WARNING:logger:[Issuer] 4. VC Issuance - {'@context': ['https://www.w3.org/2018/credentials/v1', 'https://www.w3.org/2018/credentials/examples/v1'], 'id': ' http://mitum.secureKim.com/credentials/3732 ', 'type': ['VerifiableCredential', 'DriverCredential'], 'issuer': 'did:mtm:3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp', 'issuanceDate': '2021-06-23T19:73:24Z', 'credentialSubject': {'selfie': '/9j/4AAQSkZJRgABAQAASABIAAD/.....', 'name': '홍길동', 'amount': 3, 'buyAt': '2021-07-04T20:03:19.002609'}, 'proof': {'type': 'Ed25519Signature2018', 'created': '2021-07-04T20:04:07.650260', 'proofPurpose': 'assertionMethod', 'verificationMethod': 'https://secureKim.com/issuers/keys/1', 'jws': 'eyJhbGciOiAiUlMyNTYiLCAiYjY0IjogZmFsc2UsICJjcml0IjogWyJiNjQiXX0..-ICeIVw5146qWpFA2xKBcs6zi8_HeFGDzYuwok77epbNwiyEdNuIbzGVSoVkUSSaWmhXv_gAEhKRni9r5qoSCA'}}
+INFO:canister:============
+INFO:canister:Initializing
+INFO:canister:============
+INFO:canister:python version: 3.8.5 (default, May 27 2021, 13:30:53) 
+[GCC 9.3.0]
+INFO:canister:bottle version: 0.12.19
+INFO:canister:------------------------------------------
+INFO:canister:catchall                       = True
+INFO:canister:autojson                       = True
+INFO:canister:------------------------------------------
+INFO:canister:Session timeout is 3600 seconds. Checking for expired sessions every 60 seconds. 
+INFO:canister:GET http://127.0.0.1:3333/VCScheme?scheme=driverLicense
+INFO:canister:Session created: d9DEknL7qgwpUrLitleAHVW5
+WARNING:logger:[Issuer] 1. VC Scheme 위치 알려주기 : {"scheme": "http://49.50.164.195:8080/v1/scheme?id=vc1", "VCPost": "http://127.0.0.1:3333/VC", "VCGet": "http://127.0.0.1:3333/VC"}
+INFO:canister:POST http://127.0.0.1:3333/VC
+INFO:canister:Session created: tLsLz8xqGFNVbikczp6L4d7s
+WARNING:logger:[Issuer] 2. DID AUTH - VC Post({'selfie': '/9j/4AAQSkZJRgABAQAASABIAAD/.....', 'name': '홍길동', 'amount': 3, 'buyAt': '2021-07-04T20:04:15.551679'}) : 생성한 챌린지(3LKQ66T8T1344NMNWD3IILK7VMBXB7F3), DID Document의 공개키(3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp), Holder에게 JWT 발급(b'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1dWlkIjoiMTdmNzgwZmEtODBlYy00ZTU1LTkxNTAtZmFhNDA5ZGZmZDMzIiwicHVia2V5IjoiM3JmclpnR1pIWHBqaUdyMW0zU0tBYlpTa3RZdWRmSkNCc29KbTRtMVhVZ3AiLCJjaGFsbGVuZ2UiOiIzTEtRNjZUOFQxMzQ0Tk1OV0QzSUlMSzdWTUJYQjdGMyJ9.yTumkfLXbIExljrXQGq7idgCe_L2j4BAhYyAASCwqzo').
+INFO:canister:GET http://127.0.0.1:3333/response?signature=5dgXVVdhsC23WLa6ojFYiYjS4zFHhG5LdWA6LNoLukM8my7MQc1ZSmtyFXqHsrEQV7euvdjXgnLaw5V5nmsJjzS2
+INFO:canister:Session created: aTt+PJQZZjIjUvywCpkws9oP
+WARNING:logger:[Issuer] 3. DID AUTH - Verify : ERROR : 사인 검증 실패 : 5dgXVVdhsC23WLa6ojFYiYjS4zFHhG5LdWA6LNoLukM8my7MQc1ZSmtyFXqHsrEQV7euvdjXgnLaw5V5nmsJjzS2
+INFO:canister:GET http://127.0.0.1:3333/VC
+INFO:canister:Session created: j2C2LX2V+TJj3y1x20iBl85V
+WARNING:logger:[Issuer] 4. VC Issuance - {'@context': ['https://www.w3.org/2018/credentials/v1', 'https://www.w3.org/2018/credentials/examples/v1'], 'id': ' http://mitum.secureKim.com/credentials/3732 ', 'type': ['VerifiableCredential', 'DriverCredential'], 'issuer': 'did:mtm:3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp', 'issuanceDate': '2021-06-23T19:73:24Z', 'credentialSubject': {'selfie': '/9j/4AAQSkZJRgABAQAASABIAAD/.....', 'name': '홍길동', 'amount': 3, 'buyAt': '2021-07-04T20:04:15.551679'}, 'proof': {'type': 'Ed25519Signature2018', 'created': '2021-07-04T20:04:33.773317', 'proofPurpose': 'assertionMethod', 'verificationMethod': 'https://secureKim.com/issuers/keys/1', 'jws': 'eyJhbGciOiAiUlMyNTYiLCAiYjY0IjogZmFsc2UsICJjcml0IjogWyJiNjQiXX0..B22YDoOB3JK3yCvhesFh7mZ_Cj7oLDeqPHd3IxJfHf0IKIsrytNkupTK_KxqHjAXNG8ZAeKaWbEAGBZL3VodCQ'}}
+INFO:canister:============
+INFO:canister:Initializing
+INFO:canister:============
+INFO:canister:python version: 3.8.5 (default, May 27 2021, 13:30:53) 
+[GCC 9.3.0]
+INFO:canister:bottle version: 0.12.19
+INFO:canister:------------------------------------------
+INFO:canister:catchall                       = True
+INFO:canister:autojson                       = True
+INFO:canister:------------------------------------------
+INFO:canister:Session timeout is 3600 seconds. Checking for expired sessions every 60 seconds. 
+INFO:canister:GET http://127.0.0.1:3333/VCScheme?scheme=driverLicense
+INFO:canister:Session created: 8+RTcNhDLSKHL1+pxMGeAvgZ
+WARNING:logger:[Issuer] 1. VC Scheme 위치 알려주기 : {"scheme": "http://49.50.164.195:8080/v1/scheme?id=vc1", "VCPost": "http://127.0.0.1:3333/VC", "VCGet": "http://127.0.0.1:3333/VC"}
+INFO:canister:POST http://127.0.0.1:3333/VC
+INFO:canister:Session created: s8oInsDRqzvk0l2ZXDpeJUnD
+WARNING:logger:[Issuer] 2. DID AUTH - VC Post({'selfie': '/9j/4AAQSkZJRgABAQAASABIAAD/.....', 'name': '홍길동', 'amount': 3, 'buyAt': '2021-07-04T20:04:43.960207'}) : 생성한 챌린지(PJBF10Y43DQBF5P0KLXQ9FGW29SCBJAA), DID Document의 공개키(3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp), Holder에게 JWT 발급(b'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1dWlkIjoiMzA5ZTAxNjUtODUzNi00MmVkLWE4ZTgtN2M1ZWFhZmE3ODRjIiwicHVia2V5IjoiM3JmclpnR1pIWHBqaUdyMW0zU0tBYlpTa3RZdWRmSkNCc29KbTRtMVhVZ3AiLCJjaGFsbGVuZ2UiOiJQSkJGMTBZNDNEUUJGNVAwS0xYUTlGR1cyOVNDQkpBQSJ9.5DNK8pjIL_NNy2jSg_qfA8m71D84CPTvC9-jtXqgFIk').
+INFO:canister:GET http://127.0.0.1:3333/response?signature=59N9oHwFVoETaNaW1KFvmpH8GvY3b5EJbXSSD8Y5FeDGdh8azp9EUucXZgXDZzNEGm7yotB3ibe8WrysXEGkei6G
+INFO:canister:Session created: TNAZEhbf7i2M0Ba+H314iLdW
+WARNING:logger:[Issuer] 3. DID AUTH - Verified : 사인 값(59N9oHwFVoETaNaW1KFvmpH8GvY3b5EJbXSSD8Y5FeDGdh8azp9EUucXZgXDZzNEGm7yotB3ibe8WrysXEGkei6G) 검증 성공.
+INFO:canister:GET http://127.0.0.1:3333/VC
+INFO:canister:Session created: Sqyc1ZUqsHVJajwfDfbQwMOY
+WARNING:logger:[Issuer] 4. VC Issuance - {'@context': ['https://www.w3.org/2018/credentials/v1', 'https://www.w3.org/2018/credentials/examples/v1'], 'id': ' http://mitum.secureKim.com/credentials/3732 ', 'type': ['VerifiableCredential', 'DriverCredential'], 'issuer': 'did:mtm:3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp', 'issuanceDate': '2021-06-23T19:73:24Z', 'credentialSubject': {'selfie': '/9j/4AAQSkZJRgABAQAASABIAAD/.....', 'name': '홍길동', 'amount': 3, 'buyAt': '2021-07-04T20:04:43.960207'}, 'proof': {'type': 'Ed25519Signature2018', 'created': '2021-07-04T20:05:27.791945', 'proofPurpose': 'assertionMethod', 'verificationMethod': 'https://secureKim.com/issuers/keys/1', 'jws': 'eyJhbGciOiAiUlMyNTYiLCAiYjY0IjogZmFsc2UsICJjcml0IjogWyJiNjQiXX0..tW6VqbenCrGylePSa_t-Z1Lv5baKI39yo8HlmMh-AhUUwxO3NuqtIhtWXMdUoVjLFyi1iTc686SYnTS7-eztDw'}}
+INFO:canister:============
+INFO:canister:Initializing
+INFO:canister:============
+INFO:canister:python version: 3.8.5 (default, May 27 2021, 13:30:53) 
+[GCC 9.3.0]
+INFO:canister:bottle version: 0.12.19
+INFO:canister:------------------------------------------
+INFO:canister:catchall                       = True
+INFO:canister:autojson                       = True
+INFO:canister:------------------------------------------
+INFO:canister:Session timeout is 3600 seconds. Checking for expired sessions every 60 seconds. 
+INFO:canister:GET http://127.0.0.1:3333/VCScheme?scheme=driverLicense
+INFO:canister:Session created: gPzAorIND6AKiKx1uR+/TP7E
+WARNING:logger:[Issuer] 1. VC Scheme 위치 알려주기 : {"scheme": "http://49.50.164.195:8080/v1/scheme?id=vc1", "VCPost": "http://127.0.0.1:3333/VC", "VCGet": "http://127.0.0.1:3333/VC"}
+INFO:canister:POST http://127.0.0.1:3333/VC
+INFO:canister:Session created: G2JRN76+CWovh+bW5qXG25Gm
+WARNING:logger:[Issuer] 2. DID AUTH - VC Post({'selfie': '/9j/4AAQSkZJRgABAQAASABIAAD/.....', 'name': '홍길동', 'amount': 3, 'buyAt': '2021-07-04T20:09:31.844612'}) : 생성한 챌린지(5H7RZZKQLWD07NH5K29XY5B5VQNPIEIP), DID Document의 공개키(3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp), Holder에게 JWT 발급(b'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1dWlkIjoiOGI2NTkxY2YtYTdjOC00ZWM3LWFlOTMtZDc2YzA2MDgyMWI4IiwicHVia2V5IjoiM3JmclpnR1pIWHBqaUdyMW0zU0tBYlpTa3RZdWRmSkNCc29KbTRtMVhVZ3AiLCJjaGFsbGVuZ2UiOiI1SDdSWlpLUUxXRDA3Tkg1SzI5WFk1QjVWUU5QSUVJUCJ9.3HZA8NMMf57PNtFacECunY8pOwgmmRXVZ_G_vf4pTCk').
+INFO:canister:GET http://127.0.0.1:3333/response?signature=oiRjcbN58gq7CHYencNiRbPGwMjEoh3biA4VRjsP4n2FNEqhJEYQXBokXheGnAzFPzPNANmtJ9KJ7fUkorpEseE
+INFO:canister:Session created: ATbj2HCP5M416TvsQUJO2RtD
+WARNING:logger:[Issuer] 3. DID AUTH - Verified : 사인 값(oiRjcbN58gq7CHYencNiRbPGwMjEoh3biA4VRjsP4n2FNEqhJEYQXBokXheGnAzFPzPNANmtJ9KJ7fUkorpEseE) 검증 성공.
+INFO:canister:GET http://127.0.0.1:3333/VC
+INFO:canister:Session created: te1mB/d/+fckkj1q3SQXb+w+
+WARNING:logger:[Issuer] 4. VC Issuance - {'@context': ['https://www.w3.org/2018/credentials/v1', 'https://www.w3.org/2018/credentials/examples/v1'], 'id': ' http://mitum.secureKim.com/credentials/3732 ', 'type': ['VerifiableCredential', 'DriverCredential'], 'issuer': 'did:mtm:3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp', 'issuanceDate': '2021-06-23T19:73:24Z', 'credentialSubject': {'selfie': '/9j/4AAQSkZJRgABAQAASABIAAD/.....', 'name': '홍길동', 'amount': 3, 'buyAt': '2021-07-04T20:09:31.844612'}, 'proof': {'type': 'Ed25519Signature2018', 'created': '2021-07-04T20:09:34.760525', 'proofPurpose': 'assertionMethod', 'verificationMethod': 'https://secureKim.com/issuers/keys/1', 'jws': 'eyJhbGciOiAiUlMyNTYiLCAiYjY0IjogZmFsc2UsICJjcml0IjogWyJiNjQiXX0..zMGw1Ene7JeNteyLHSXsKylG8yzZLDhqvNNfsqaV2XSLXBnRIm1lEFNNh2HPnbzExsfhoxu5gHrARxX-Hr8xAg'}}

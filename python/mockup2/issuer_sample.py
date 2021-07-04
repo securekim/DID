@@ -11,6 +11,7 @@ LOG = DIDLOG.__get_logger('warning')
 LOGI = LOG.info
 LOGD = LOG.debug
 LOGW = LOG.warning
+LOGE = LOG.error
 
 issuer_port = 3333
 app = bottle.Bottle()
@@ -34,7 +35,8 @@ def VCScheme():
                 "VCPost": _ISSUER_URL+"/VC",
                 "VCGet" : _ISSUER_URL+"/VC"
             })
-    except Exception:
+    except Exception as ex :
+        LOGE(ex)
         response.status = 404
         return "Error"
     LOGW("[Issuer] 1. VC Scheme 위치 알려주기 : %s" % (schemeJSON))
@@ -53,8 +55,9 @@ def VCPost():
         encoded_jwt = jwt.encode({"uuid": myUUID, "pubkey":pubkey, "challenge":challenge}, _ISSUER_SECRET, algorithm="HS256")
         LOGW("[Issuer] 2. DID AUTH - VC Post(%s) : 생성한 챌린지(%s), DID Document의 공개키(%s), Holder에게 JWT 발급(%s)." 
         % (credentialSubject, challenge, pubkey, encoded_jwt))
-    except Exception:
+    except Exception as ex :
         response.status = 404
+        LOGE(ex)
         LOGW("[Issuer] 2. DID AUTH - VC Post에서 Exception 발생")
         return "Error"
     raise HTTPResponse(json.dumps({"payload": challenge, "endPoint":_ISSUER_URL+"/response"}), status=202, headers={'Authorization':str(encoded_jwt.decode("utf-8"))})
@@ -68,14 +71,16 @@ def response():
         return "Error"
     try:
         jwt = DID.getVerifiedJWT(request, _ISSUER_SECRET)
+        LOGI("[Issuer] 3. DID AUTH - jwt 결과(%s)" % str(jwt))
         challengeRet = DID.verifyString(jwt['challenge'] , get_body, jwt['pubkey'])
         if challengeRet == True:
             LOGW("[Issuer] 3. DID AUTH - Verified : 사인 값(%s) 검증 성공." % get_body)
         else:
             #TODO : 검증 실패시 토큰 제거.
             LOGW("[Issuer] 3. DID AUTH - Verify : Challenge(%s)의 사인 값(%s)을 pubkey(%s)로 검증 실패." % jwt['challenge'] , get_body, jwt['pubkey'])
-    except Exception:
+    except Exception as ex :
         challengeRet = False
+        LOGE(ex)
         LOGW("[Issuer] 3. DID AUTH - Verify : ERROR : 사인 검증 실패 : %s" % get_body)
     raise HTTPResponse(json.dumps({"Response": challengeRet}), status=202, headers={})
 
@@ -88,7 +93,8 @@ def VCGet():
         vc = DID.makeSampleVC(_ISSUER_DID, credentialSubject)
         jws = DID.makeJWS(vc, _ISSUER_PRIVATEKEY)
         vc['proof']["jws"] = jws
-    except Exception:
+    except Exception as ex :
+        LOGE(ex)
         response.status = 404
         return "Error"
     LOGW("[Issuer] 4. VC Issuance - %s" % vc)

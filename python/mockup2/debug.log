@@ -1,0 +1,111 @@
+INFO:canister:============
+INFO:canister:Initializing
+INFO:canister:============
+INFO:canister:python version: 3.8.5 (default, May 27 2021, 13:30:53) 
+[GCC 9.3.0]
+INFO:canister:bottle version: 0.12.19
+INFO:canister:------------------------------------------
+INFO:canister:catchall                       = True
+INFO:canister:autojson                       = True
+INFO:canister:------------------------------------------
+INFO:canister:Session timeout is 3600 seconds. Checking for expired sessions every 60 seconds. 
+INFO:canister:============
+INFO:canister:Initializing
+INFO:canister:============
+INFO:canister:python version: 3.8.5 (default, May 27 2021, 13:30:53) 
+[GCC 9.3.0]
+INFO:canister:bottle version: 0.12.19
+INFO:canister:------------------------------------------
+INFO:canister:catchall                       = True
+INFO:canister:autojson                       = True
+INFO:canister:------------------------------------------
+INFO:canister:Session timeout is 3600 seconds. Checking for expired sessions every 60 seconds. 
+INFO:canister:============
+INFO:canister:Initializing
+INFO:canister:============
+INFO:canister:python version: 3.8.5 (default, May 27 2021, 13:30:53) 
+[GCC 9.3.0]
+INFO:canister:bottle version: 0.12.19
+INFO:canister:------------------------------------------
+INFO:canister:catchall                       = True
+INFO:canister:autojson                       = True
+INFO:canister:------------------------------------------
+INFO:canister:Session timeout is 3600 seconds. Checking for expired sessions every 60 seconds. 
+INFO:canister:GET http://127.0.0.1:3333/VCScheme?scheme=driverLicense
+INFO:canister:Session created: hX4L3xK230JKoVjzT3Ap40rE
+WARNING:logger:[Issuer] 1. VC Scheme 위치 알려주기 : {"scheme": "http://49.50.164.195:8080/v1/scheme?id=vc1", "VCPost": "http://127.0.0.1:3333/VC", "VCGet": "http://127.0.0.1:3333/VC"}
+INFO:canister:POST http://127.0.0.1:3333/VC
+INFO:canister:Session created: BA4Zw+QBuWhIA963IgxYc2Zp
+WARNING:logger:[Issuer] 2. DID AUTH - VC Post({'selfie': '/9j/4AAQSkZJRgABAQAASABIAAD/.....', 'name': '홍길동', 'amount': 3, 'buyAt': '2021-07-04T20:00:41.891548'}) : 생성한 챌린지(6TGYNQ5IIISTK8PRNMDMDYE4DEU362GV), DID Document의 공개키(3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp), Holder에게 JWT 발급(b'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1dWlkIjoiNjk2NmE0ZWQtMGE2YS00OGI3LWJhY2ItZGI0NWVhNWYzYTMxIiwicHVia2V5IjoiM3JmclpnR1pIWHBqaUdyMW0zU0tBYlpTa3RZdWRmSkNCc29KbTRtMVhVZ3AiLCJjaGFsbGVuZ2UiOiI2VEdZTlE1SUlJU1RLOFBSTk1ETURZRTRERVUzNjJHViJ9.hYVQYsoktHx8Sou-a4Rv_AoV1NMzgfqqqr2-qPPrzmY').
+INFO:canister:GET http://127.0.0.1:3333/response?signature=4ejTWcAJCT6GKtWRE2DgJYmC7Rmj7NFwsCvSVmZZ7bsf9GuA4pcoNPwFgtFtBaSQpBrDL2CpaGeBrHH5MN7G9qTs
+INFO:canister:Session created: Vyc0nkG7LtaokJkOUz1fU9nu
+WARNING:logger:[Issuer] 3. DID AUTH - Verify : ERROR : 사인 검증 실패 : 4ejTWcAJCT6GKtWRE2DgJYmC7Rmj7NFwsCvSVmZZ7bsf9GuA4pcoNPwFgtFtBaSQpBrDL2CpaGeBrHH5MN7G9qTs
+INFO:canister:GET http://127.0.0.1:3333/VC
+INFO:canister:Session created: cGbUtZIPoF2JG+ZwWuqsdQ63
+WARNING:logger:[Issuer] 4. VC Issuance - {'@context': ['https://www.w3.org/2018/credentials/v1', 'https://www.w3.org/2018/credentials/examples/v1'], 'id': ' http://mitum.secureKim.com/credentials/3732 ', 'type': ['VerifiableCredential', 'DriverCredential'], 'issuer': 'did:mtm:3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp', 'issuanceDate': '2021-06-23T19:73:24Z', 'credentialSubject': {'selfie': '/9j/4AAQSkZJRgABAQAASABIAAD/.....', 'name': '홍길동', 'amount': 3, 'buyAt': '2021-07-04T20:00:41.891548'}, 'proof': {'type': 'Ed25519Signature2018', 'created': '2021-07-04T20:00:42.141610', 'proofPurpose': 'assertionMethod', 'verificationMethod': 'https://secureKim.com/issuers/keys/1', 'jws': 'eyJhbGciOiAiUlMyNTYiLCAiYjY0IjogZmFsc2UsICJjcml0IjogWyJiNjQiXX0..K3R3elCq1ufJUuJICOQEsONIrvZJWJ-1eSg-GAZqfqXBFm_vawITcIBOarUTxeQ6rlEsWkypcv5PREN3Zh0MAA'}}
+INFO:canister:============
+INFO:canister:Initializing
+INFO:canister:============
+INFO:canister:python version: 3.8.5 (default, May 27 2021, 13:30:53) 
+[GCC 9.3.0]
+INFO:canister:bottle version: 0.12.19
+INFO:canister:------------------------------------------
+INFO:canister:catchall                       = True
+INFO:canister:autojson                       = True
+INFO:canister:------------------------------------------
+INFO:canister:Session timeout is 3600 seconds. Checking for expired sessions every 60 seconds. 
+INFO:canister:============
+INFO:canister:Initializing
+INFO:canister:============
+INFO:canister:python version: 3.8.5 (default, May 27 2021, 13:30:53) 
+[GCC 9.3.0]
+INFO:canister:bottle version: 0.12.19
+INFO:canister:------------------------------------------
+INFO:canister:catchall                       = True
+INFO:canister:autojson                       = True
+INFO:canister:------------------------------------------
+INFO:canister:Session timeout is 3600 seconds. Checking for expired sessions every 60 seconds. 
+INFO:canister:============
+INFO:canister:Initializing
+INFO:canister:============
+INFO:canister:python version: 3.8.5 (default, May 27 2021, 13:30:53) 
+[GCC 9.3.0]
+INFO:canister:bottle version: 0.12.19
+INFO:canister:------------------------------------------
+INFO:canister:catchall                       = True
+INFO:canister:autojson                       = True
+INFO:canister:------------------------------------------
+INFO:canister:Session timeout is 3600 seconds. Checking for expired sessions every 60 seconds. 
+INFO:canister:============
+INFO:canister:Initializing
+INFO:canister:============
+INFO:canister:python version: 3.8.5 (default, May 27 2021, 13:30:53) 
+[GCC 9.3.0]
+INFO:canister:bottle version: 0.12.19
+INFO:canister:------------------------------------------
+INFO:canister:catchall                       = True
+INFO:canister:autojson                       = True
+INFO:canister:------------------------------------------
+INFO:canister:Session timeout is 3600 seconds. Checking for expired sessions every 60 seconds. 
+INFO:canister:============
+INFO:canister:Initializing
+INFO:canister:============
+INFO:canister:python version: 3.8.5 (default, May 27 2021, 13:30:53) 
+[GCC 9.3.0]
+INFO:canister:bottle version: 0.12.19
+INFO:canister:------------------------------------------
+INFO:canister:catchall                       = True
+INFO:canister:autojson                       = True
+INFO:canister:------------------------------------------
+INFO:canister:Session timeout is 3600 seconds. Checking for expired sessions every 60 seconds. 
+INFO:canister:============
+INFO:canister:Initializing
+INFO:canister:============
+INFO:canister:python version: 3.8.5 (default, May 27 2021, 13:30:53) 
+[GCC 9.3.0]
+INFO:canister:bottle version: 0.12.19
+INFO:canister:------------------------------------------
+INFO:canister:catchall                       = True
+INFO:canister:autojson                       = True
+INFO:canister:------------------------------------------
+INFO:canister:Session timeout is 3600 seconds. Checking for expired sessions every 60 seconds. 

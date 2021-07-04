@@ -124,11 +124,17 @@ def makeJWS(vc, privateKey):
 def getVerifiedJWT(request, secret):
     try :
         encoded_jwt = request.headers.get('Authorization')
+    except Exception:
+        return "NO Authorization"
+    try :
         encoded_jwt = encoded_jwt.split(" ")[1] # FROM Bearer
+    except Exception:
+        return "NO Bearer : " + str(encoded_jwt)
+    try :
         decoded_jwt = jwt.decode(encoded_jwt, secret, algorithms=["HS256"])
         return decoded_jwt
     except Exception:
-        return None
+        return "JWT verify failed"
 
 def getPubkeyFromDIDDocument(did):
     try:
