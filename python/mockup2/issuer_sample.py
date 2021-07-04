@@ -37,7 +37,7 @@ def VCScheme():
     except Exception:
         response.status = 404
         return "Error"
-    LOGW("[Issuer] VC Scheme 위치 알려주기 : %s" % (schemeJSON))
+    LOGW("[Issuer] 1. VC Scheme 위치 알려주기 : %s" % (schemeJSON))
     raise HTTPResponse(schemeJSON, status=200, headers={})
 
 @app.post('/VC')
@@ -51,11 +51,11 @@ def VCPost():
         challenge = DID.generateChallenge()
         pubkey = DID.getPubkeyFromDIDDocument(did)
         encoded_jwt = jwt.encode({"uuid": myUUID, "pubkey":pubkey, "challenge":challenge}, _ISSUER_SECRET, algorithm="HS256")
-        LOGW("[Issuer] DID AUTH - VC Post(%s) : 생성한 챌린지(%s), DID Document의 공개키(%s), Holder에게 JWT(%s) 발급." 
+        LOGW("[Issuer] 2. DID AUTH - VC Post(%s) : 생성한 챌린지(%s), DID Document의 공개키(%s), Holder에게 JWT 발급(%s)." 
         % (credentialSubject, challenge, pubkey, encoded_jwt))
     except Exception:
         response.status = 404
-        LOGW("[Issuer] DID AUTH - VC Post에서 Exception 발생")
+        LOGW("[Issuer] 2. DID AUTH - VC Post에서 Exception 발생")
         return "Error"
     raise HTTPResponse(json.dumps({"payload": challenge, "endPoint":_ISSUER_URL+"/response"}), status=202, headers={'Authorization':str(encoded_jwt.decode("utf-8"))})
 
@@ -70,12 +70,12 @@ def response():
         jwt = DID.getVerifiedJWT(request, _ISSUER_SECRET)
         challengeRet = DID.verifyString(jwt['challenge'] , get_body, jwt['pubkey'])
         if challengeRet == True:
-            LOGW("[Issuer] DID AUTH - Verified : 사인 값(%s) 검증 성공. VC를 만들고, 사인된 VC 보내기" % get_body)
+            LOGW("[Issuer] 3. DID AUTH - Verified : 사인 값(%s) 검증 성공. VC를 만들고, 사인된 VC 보내기" % get_body)
         else:
-            LOGW("[Issuer] DID AUTH - Verify : 사인 값(%s) 검증 실패." % get_body)
+            LOGW("[Issuer] 3. DID AUTH - Verify : 사인 값(%s) 검증 실패." % get_body)
     except Exception:
         challengeRet = False
-        LOGW("[Issuer] DID AUTH - Verify : ERROR : 검증 실패" % jwt['challenge'])
+        LOGW("[Issuer] 3. DID AUTH - Verify : ERROR : 검증 실패" % jwt['challenge'])
     raise HTTPResponse(json.dumps({"Response": challengeRet}), status=202, headers={})
 
 @app.get('/VC')
@@ -90,7 +90,7 @@ def VCGet():
     except Exception:
         response.status = 404
         return "Error"
-    LOGW("[Issuer] VC Issuance - %s" % vc)
+    LOGW("[Issuer] 4. VC Issuance - %s" % vc)
     raise HTTPResponse(json.dumps({"Response":True, "VC": vc}), status=202, headers={})
 
 if __name__ == "__main__":
