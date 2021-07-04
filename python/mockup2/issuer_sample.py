@@ -65,23 +65,24 @@ def VCPost():
 @app.get('/response')
 def response():
     try:
-        get_body = request.query['signature']
+        signature = request.query['signature']
+        LOGI("[Issuer] 3. DID AUTH - Signature(%s)" % str(signature))
     except Exception:
         response.status = 400
         return "Error"
     try:
         jwt = DID.getVerifiedJWT(request, _ISSUER_SECRET)
         LOGI("[Issuer] 3. DID AUTH - jwt 결과(%s)" % str(jwt))
-        challengeRet = DID.verifyString(jwt['challenge'] , get_body, jwt['pubkey'])
+        challengeRet = DID.verifyString(jwt['challenge'] , signature, jwt['pubkey'])
         if challengeRet == True:
-            LOGW("[Issuer] 3. DID AUTH - Verified : 사인 값(%s) 검증 성공." % get_body)
+            LOGW("[Issuer] 3. DID AUTH - Verified : 사인 값(%s) 검증 성공." % signature)
         else:
             #TODO : 검증 실패시 토큰 제거.
-            LOGW("[Issuer] 3. DID AUTH - Verify : Challenge(%s)의 사인 값(%s)을 pubkey(%s)로 검증 실패." % jwt['challenge'] , get_body, jwt['pubkey'])
+            LOGW("[Issuer] 3. DID AUTH - Verify : Challenge(%s)의 사인 값(%s)을 pubkey(%s)로 검증 실패." % (jwt['challenge'] , signature, jwt['pubkey']))
     except Exception as ex :
         challengeRet = False
         LOGE(ex)
-        LOGW("[Issuer] 3. DID AUTH - Verify : ERROR : 사인 검증 실패 : %s" % get_body)
+        LOGW("[Issuer] 3. DID AUTH - Verify : ERROR : 사인 검증 실패 : %s" % signature)
     raise HTTPResponse(json.dumps({"Response": challengeRet}), status=202, headers={})
 
 @app.get('/VC')
