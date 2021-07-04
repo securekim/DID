@@ -18,6 +18,7 @@ def __get_logger(level):
     stream_handler.setFormatter(formatter)
     __logger.addHandler(stream_handler)
     __logger.setLevel(_level[level])
+    logging.basicConfig(filename='debug.log',level=_level[level])
     return __logger
 
 

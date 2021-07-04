@@ -76,7 +76,7 @@ def response():
             LOGW("[Issuer] 3. DID AUTH - Verify : Challenge(%s)의 사인 값(%s)을 pubkey(%s)로 검증 실패." % jwt['challenge'] , get_body, jwt['pubkey'])
     except Exception:
         challengeRet = False
-        LOGW("[Issuer] 3. DID AUTH - Verify : ERROR : 검증 실패")
+        LOGW("[Issuer] 3. DID AUTH - Verify : ERROR : 사인 검증 실패 : %s" % get_body)
     raise HTTPResponse(json.dumps({"Response": challengeRet}), status=202, headers={})
 
 @app.get('/VC')
