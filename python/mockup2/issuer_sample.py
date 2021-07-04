@@ -14,9 +14,10 @@ issuer_port = 3333
 app = bottle.Bottle()
 app.install(canister.Canister())
 
-_ISSUER_DID = "did:mtm:3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp"
-_ISSUER_PRIVATEKEY = "4YUNdokj58dyuRQpuoFY2WwCNG47Ermka5XoSFfjhdqZ"
-_ISSUER_SECRET = "ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd"
+_ISSUER_DID = DID.SAMPLE['issuer']['did']
+_ISSUER_PRIVATEKEY = DID.SAMPLE['issuer']['privateKey']
+_ISSUER_SECRET = DID.SAMPLE['issuer']['secret']
+_ISSUER_URL = DID.SAMPLE['issuer']['url']
 universal_resolver_addr = "https://did-resolver.mitum.com/ddo/" 
 
 @app.get('/VCScheme')
@@ -27,8 +28,8 @@ def VCScheme():
         schemeJSON = json.dumps(
             {
                 "scheme": "http://49.50.164.195:8080/v1/scheme?id="+schemeID,
-                "VCPost": "http://mtm.securekim.com:3333/VC",
-                "VCGet" : "http://mtm.securekim.com:3333/VC"
+                "VCPost": _ISSUER_URL+"/VC",
+                "VCGet" : _ISSUER_URL+"/VC"
             })
     except Exception:
         response.status = 404
@@ -54,7 +55,7 @@ def VCPost():
         response.status = 404
         return "Error"
     LOGD("[이슈어] 모바일의 VC 요청 : %s" % (credentialSubject))
-    raise HTTPResponse(json.dumps({"payload": challenge, "endPoint":"http://mtm.securekim.com:3333/response"}), status=202, headers={'Authorization':str(encoded_jwt.decode("utf-8"))})
+    raise HTTPResponse(json.dumps({"payload": challenge, "endPoint":_ISSUER_URL+"/response"}), status=202, headers={'Authorization':str(encoded_jwt.decode("utf-8"))})
 
 @app.get('/VC')
 def VCGet():

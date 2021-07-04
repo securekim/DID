@@ -12,10 +12,51 @@ import jwt
 import uuid
 import logging
 
-global _CREDENTIAL_SUBJECTS 
 _CREDENTIAL_SUBJECTS = dict()
-global _VCSCHEME
 _VCSCHEME ={"driverLicense" : "vc1"}
+
+def getTime():
+    return str(datetime.datetime.utcnow().isoformat())
+
+SAMPLE = {
+    "issuer" :{
+        "did" :"did:mtm:3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp",
+        "privateKey" : "4YUNdokj58dyuRQpuoFY2WwCNG47Ermka5XoSFfjhdqZ",
+        "publicKey" : "3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp",
+        "secret" : "ExsNKhvF3pqwDvFaVaiQnWWdyeVwxd",
+        "url" : "http://mtm.securekim.com:3333"
+    },
+    "holder" : {
+        "did" : "did:mtm:Exgfmw6A5RLWWeJX2G4czjLJb8yDxM",
+        "privateKey" : "4YUNdokj58dyuRQpuoFY2WwCNG47Ermka5XoSFfjhdqZ",
+        "publicKey" : "3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp",
+        "credentialSubject" : {'selfie':'/9j/4AAQSkZJRgABAQAASABIAAD/.....',
+        'name':'홍길동','amount': 3,'buyAt': getTime()} 
+    },
+    "verifier" :{
+
+    }
+}
+
+def makeSampleVC(issuer_did, credentialSubject):
+    vc = {
+        "@context": [
+            "https://www.w3.org/2018/credentials/v1",
+            "https://www.w3.org/2018/credentials/examples/v1"
+        ],
+        "id": " http://mitum.secureKim.com/credentials/3732 ",
+        "type": ["VerifiableCredential", "DriverCredential"],
+        "issuer": issuer_did,
+        "issuanceDate": "2021-06-23T19:73:24Z",
+        "credentialSubject": credentialSubject,
+        "proof": {
+            "type": "Ed25519Signature2018",
+            "created": getTime(),
+            "proofPurpose": "assertionMethod", 
+            "verificationMethod": "https://secureKim.com/issuers/keys/1"
+        }
+    }
+    return vc
 
 _level = {
     "debug" : logging.DEBUG,
@@ -77,26 +118,6 @@ def getCredentialSubject(uuid):
         return credentialSubject
     except Exception:
         return None
-
-def makeSampleVC(issuer_did, credentialSubject):
-    vc = {
-        "@context": [
-            "https://www.w3.org/2018/credentials/v1",
-            "https://www.w3.org/2018/credentials/examples/v1"
-        ],
-        "id": " http://mitum.secureKim.com/credentials/3732 ",
-        "type": ["VerifiableCredential", "DriverCredential"],
-        "issuer": issuer_did,
-        "issuanceDate": "2021-06-23T19:73:24Z",
-        "credentialSubject": credentialSubject,
-        "proof": {
-            "type": "Ed25519Signature2018",
-            "created": str(datetime.datetime.utcnow().isoformat()),
-            "proofPurpose": "assertionMethod", 
-            "verificationMethod": "https://secureKim.com/issuers/keys/1"
-        }
-    }
-    return vc
 
 def makeJWS(vc, privateKey):
     try :
