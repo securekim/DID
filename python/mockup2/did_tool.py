@@ -35,6 +35,14 @@ SAMPLE = {
     },
     "verifier" :{
 
+    },
+    "platform" :{
+        'url' : 'http://49.50.164.195:8080',
+        "urls" :{
+            "scheme" : "http://49.50.164.195:8080/v1/scheme",
+            "resolver" : "https://did-resolver.mitum.com/ddo/",
+            "document" : "http://49.50.164.195:8080/v1/DIDDocument"
+        }
     }
 }
 
@@ -143,10 +151,10 @@ def getVerifiedJWT(request, secret):
 
 def getPubkeyFromDIDDocument(did):
     try:
-        did_req = requests.get("http://49.50.164.195:8080/v1/DIDDocument?did="+did) 
+        did_req = requests.get(SAMPLE['platform']['urls']['document']+"?did="+did) 
         pubkey = json.loads(json.loads(did_req.text)['data'])['verificationMethod'][0]['publicKeyBase58']
     except Exception:
-        pubkey = "3rfrZgGZHXpjiGr1m3SKAbZSktYudfJCBsoJm4m1XUgp"
+        pubkey = SAMPLE['holder']['publicKey']
     return pubkey
 
 def getVCScheme(scheme):

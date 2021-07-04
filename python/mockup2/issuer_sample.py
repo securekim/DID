@@ -18,7 +18,8 @@ _ISSUER_DID = DID.SAMPLE['issuer']['did']
 _ISSUER_PRIVATEKEY = DID.SAMPLE['issuer']['privateKey']
 _ISSUER_SECRET = DID.SAMPLE['issuer']['secret']
 _ISSUER_URL = DID.SAMPLE['issuer']['url']
-universal_resolver_addr = "https://did-resolver.mitum.com/ddo/" 
+_PLATFORM_SCHEME_URL = DID.SAMPLE['platform']['urls']['scheme']
+_PLATFORM_RESOLVER_URL = DID.SAMPLE['platform']['urls']['resolver']
 
 @app.get('/VCScheme')
 def VCScheme():
@@ -27,7 +28,7 @@ def VCScheme():
         schemeID = DID.getVCScheme(scheme)
         schemeJSON = json.dumps(
             {
-                "scheme": "http://49.50.164.195:8080/v1/scheme?id="+schemeID,
+                "scheme": _PLATFORM_SCHEME_URL+"?id="+schemeID,
                 "VCPost": _ISSUER_URL+"/VC",
                 "VCGet" : _ISSUER_URL+"/VC"
             })
