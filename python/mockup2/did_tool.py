@@ -15,7 +15,6 @@ import logging
 global _CREDENTIAL_SUBJECTS 
 _CREDENTIAL_SUBJECTS = dict()
 global _VCSCHEME
-_VCSCHEME = dict()
 _VCSCHEME ={"driverLicense" : "vc1"}
 
 _level = {
