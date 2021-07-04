@@ -52,6 +52,9 @@ def VCPost():
         DID.saveCredentialSubject(myUUID, credentialSubject)
         challenge = DID.generateChallenge()
         pubkey = DID.getPubkeyFromDIDDocument(did)
+        if pubkey == None:
+            LOGE("[Issuer] 2. DID AUTH - Document Get 에러 발생 %s" % str(DID.SAMPLE['platform']['urls']['document']+"?did="+did))
+            return "Error"
         encoded_jwt = jwt.encode({"uuid": myUUID, "pubkey":pubkey, "challenge":challenge}, _ISSUER_SECRET, algorithm="HS256")
         LOGW("[Issuer] 2. DID AUTH - VC Post(%s) : 생성한 챌린지(%s), DID Document의 공개키(%s), Holder에게 JWT 발급(%s)." 
         % (credentialSubject, challenge, pubkey, encoded_jwt))

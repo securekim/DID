@@ -141,7 +141,7 @@ def getPubkeyFromDIDDocument(did):
         did_req = requests.get(SAMPLE['platform']['urls']['document']+"?did="+did) 
         pubkey = json.loads(json.loads(did_req.text)['data'])['verificationMethod'][0]['publicKeyBase58']
     except Exception:
-        pubkey = SAMPLE['holder']['publicKey']
+        pubkey = None
     return pubkey
 
 def getVCScheme(scheme):
