@@ -4,11 +4,13 @@ import bottle
 import canister
 from bottle import response, request, HTTPResponse
 import jwt
-import did_tool as DID
+from tools import did as DID
+from tools import log as DIDLOG
 
-LOG = DID.__get_logger('debug')
+LOG = DIDLOG.__get_logger('warning')
 LOGI = LOG.info
 LOGD = LOG.debug
+LOGW = LOG.warning
 
 issuer_port = 3333
 app = bottle.Bottle()
@@ -35,7 +37,7 @@ def VCScheme():
     except Exception:
         response.status = 404
         return "Error"
-    LOGD("[이슈어] VC Scheme 위치 알려주기 : %s" % (schemeJSON))
+    LOGW("[Issuer] VC Scheme 위치 알려주기 : %s" % (schemeJSON))
     raise HTTPResponse(schemeJSON, status=200, headers={})
 
 @app.post('/VC')
@@ -47,16 +49,32 @@ def VCPost():
         credentialSubject = vc['credentialSubject']
         DID.saveCredentialSubject(myUUID, credentialSubject)
         challenge = DID.generateChallenge()
-        LOGD("[이슈어] 랜덤 생성한 챌린지 컨텐츠 : %s" % challenge)
         pubkey = DID.getPubkeyFromDIDDocument(did)
-        LOGD("[이슈어][document] 모바일의 공개키 : %s" % pubkey)
         encoded_jwt = jwt.encode({"uuid": myUUID, "pubkey":pubkey, "challenge":challenge}, _ISSUER_SECRET, algorithm="HS256")
-        LOGD("[이슈어] 모바일 헤더에 JWT 발급 : %s" % (encoded_jwt))
+        LOGW("[Issuer] DID AUTH - VC Post(%s) : 생성한 챌린지(%s), DID Document의 공개키(%s), Holder에게 JWT(%s) 발급." 
+        % (credentialSubject, challenge, pubkey, encoded_jwt))
     except Exception:
         response.status = 404
+        LOGW("[Issuer] DID AUTH - VC Post에서 Exception 발생")
         return "Error"
-    LOGD("[이슈어] 모바일의 VC 요청 : %s" % (credentialSubject))
     raise HTTPResponse(json.dumps({"payload": challenge, "endPoint":_ISSUER_URL+"/response"}), status=202, headers={'Authorization':str(encoded_jwt.decode("utf-8"))})
+
+@app.get('/response')
+def response():
+    try:
+        get_body = request.query['signature']
+    except Exception:
+        response.status = 400
+        return "Error"
+    try:
+        jwt = DID.getVerifiedJWT(request, _ISSUER_SECRET)
+        challengeRet = DID.verifyString(jwt['challenge'] , get_body, jwt['pubkey'])
+        if challengeRet == True:
+            LOGW("[Issuer] DID AUTH - Verified : 사인 값(%s) 검증 성공. VC를 만들고, 사인된 VC 보내기" % get_body)
+    except Exception:
+        challengeRet = False
+        LOGW("[Issuer] DID AUTH - Verify : 사인 값(%s) 검증 실패" % jwt['challenge'])
+    raise HTTPResponse(json.dumps({"Response": challengeRet}), status=202, headers={})
 
 @app.get('/VC')
 def VCGet():
@@ -70,26 +88,8 @@ def VCGet():
     except Exception:
         response.status = 404
         return "Error"
-    LOGD("[이슈어] 최종 발급된 VC : %s" % vc)
+    LOGW("[Issuer] VC Issuance - %s" % vc)
     raise HTTPResponse(json.dumps({"Response":True, "VC": vc}), status=202, headers={})
-
-@app.get('/response')
-def response():
-    try:
-        get_body = request.query['signature']
-    except Exception:
-        response.status = 400
-        return "Error"
-    try:
-        jwt = DID.getVerifiedJWT(request, _ISSUER_SECRET)
-        challengeRet = DID.verifyString(jwt['challenge'] , get_body, jwt['pubkey'])
-        LOGD("[이슈어] 받은 사인 값 : %s" % get_body)
-        if challengeRet == True:
-            LOGD("[이슈어] VC를 만들고, 사인된 VC 보내기")
-    except Exception:
-        challengeRet = False
-    LOGD("[이슈어] 검증 결과 : %s" % challengeRet)
-    raise HTTPResponse(json.dumps({"Response": challengeRet}), status=202, headers={})
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=issuer_port)
